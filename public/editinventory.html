@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Warehouse Management System</h1>
+
+        <!-- Select Product to Edit -->
+        <div class="card mb-4">
+            <div class="card-header">Select Product to Edit</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="selectProduct">Select Product</label>
+                    <select class="form-control" id="selectProduct">
+                        <option value="">Select a product</option>
+                    </select>
+                </div>
+                <a class="btn btn-secondary" href="adminmenu.html">Back</a>
+            </div>
+        </div>
+
+        <!-- Edit Product Form -->
+        <div id="editProductForm" class="card mb-4" style="display: none;">
+            <div class="card-header">Edit Product</div>
+            <div class="card-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" class="form-control" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" class="form-control" id="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price</label>
+                        <input type="number" class="form-control" id="price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" class="form-control" id="category" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reorderLevel">Reorder Level</label>
+                        <input type="number" class="form-control" id="reorderLevel" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Product</button>
+                    <a class="btn btn-secondary" href="adminmenu.html">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            fetchProducts();
+
+            // Fetch and populate products in the select box
+            function fetchProducts() {
+                $.ajax({
+                    url: '/api/products',
+                    type: 'GET',
+                    success: function(products) {
+                        let options = '<option value="">Select a product</option>';
+                        products.forEach(product => {
+                            options += `<option value="${product.productID}">${product.productName}</option>`;
+                        });
+                        $('#selectProduct').html(options);
+                    }
+                });
+            }
+
+            // Handle product selection
+            $('#selectProduct').on('change', function() {
+                const id = $(this).val();
+                if (id) {
+                    $.ajax({
+                        url: `/api/products/${id}`,
+                        type: 'GET',
+                        success: function(product) {
+                            $('#productId').val(product.productID);
+                            $('#productName').val(product.productName);
+                            $('#description').val(product.description);
+                            $('#price').val(product.price);
+                            $('#category').val(product.category);
+                            $('#quantity').val(product.quantity);
+                            $('#reorderLevel').val(product.reorderLevel);
+                            $('#editProductForm').show();
+                        }
+                    });
+                } else {
+                    $('#editProductForm').hide();
+                    $('#productForm')[0].reset();
+                    $('#productId').val('');
+                }
+            });
+
+            // Handle form submission for updating a product
+            $('#productForm').on('submit', function(e) {
+                e.preventDefault();
+                const productData = {
+                    productName: $('#productName').val(),
+                    description: $('#description').val(),
+                    price: $('#price').val(),
+                    category: $('#category').val(),
+                    quantity: $('#quantity').val(),
+                    reorderLevel: $('#reorderLevel').val()
+                };
+
+                const productId = $('#productId').val();
+                if (productId) {
+                    // Update product
+                    $.ajax({
+                        url: `/api/products/${productId}`,
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify(productData),
+                        success: function(response) {
+                            $('#productForm')[0].reset();
+                            $('#productId').val('');
+                            $('#editProductForm').hide();
+                            fetchProducts();
+                            $('#selectProduct').val('');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
