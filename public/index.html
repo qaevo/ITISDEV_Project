@@ -42,19 +42,41 @@
                 </form>
             </div>
         </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Filter Products</div>
+            <div class="card-body">
+                <input type="text" id="search-bar" class="form-control mb-2" placeholder="Search by product name...">
+                <select id="category-filter" class="form-control mb-2">
+                    <option value="">All Categories</option>
+                </select>
+                <button id="toggle-advanced-filters" class="btn btn-secondary mb-2">Advanced Filters</button>
+                <div id="advanced-filters" class="hidden">
+                    <input type="number" id="min-price" class="form-control mb-2" placeholder="Min Price">
+                    <input type="number" id="max-price" class="form-control mb-2" placeholder="Max Price">
+                    <input type="number" id="min-quantity" class="form-control mb-2" placeholder="Min Quantity">
+                    <input type="number" id="max-quantity" class="form-control mb-2" placeholder="Max Quantity">
+                    <input type="number" id="min-reorder-level" class="form-control mb-2" placeholder="Min Reorder Level">
+                    <input type="number" id="max-reorder-level" class="form-control mb-2" placeholder="Max Reorder Level">
+                </div>
+                <button id="filter-button" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+
+
         <div class="card">
             <div class="card-header">Product List</div>
             <div class="card-body">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th>Quantity</th>
-                            <th>Reorder Level</th>
+                            <th class="sortable" data-sort="productID">ID</th>
+                            <th class="sortable" data-sort="productName">Name</th>
+                            <th class="sortable" data-sort="description">Description</th>
+                            <th class="sortable" data-sort="price">Price</th>
+                            <th class="sortable" data-sort="category">Category</th>
+                            <th class="sortable" data-sort="quantity">Quantity</th>
+                            <th class="sortable" data-sort="reorderLevel">Reorder Level</th>
                         </tr>
                     </thead>
                     <tbody id="productList"></tbody>

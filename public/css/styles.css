@@ -10,3 +10,15 @@ body {
 .card-body {
     background-color: #f8f9fa;
 }
+
+.hidden {
+    display: none;
+}
+
+#filter-button, #toggle-advanced-filters {
+    width: 100%;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
