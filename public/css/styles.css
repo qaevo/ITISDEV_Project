@@ -11,6 +11,91 @@ body {
   background-color: #f8f9fa;
 }
 
+.landing-page-body {
+  background-image: url("../image/loginLanding.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+
+  position: relative;
+}
+.landing-page-body::before {
+  content: ""; /* Required for pseudo-elements */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+div.container-login {
+  position: relative;
+  z-index: 1;
+  color: black;
+  text-align: center;
+  padding: 20px;
+  padding-bottom: 50px;
+}
+
+h1.login-header {
+  font-size: 60px;
+  border-bottom: 10px;
+  font-family: "Roboto", sans-serif;
+}
+
+div.form-group {
+  margin-bottom: 15px;
+}
+
+.login-body-container {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-text-header {
+  text-align: center;
+  font-weight: bold;
+  margin: 0px;
+  font-family: "Roboto", sans-serif;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  padding: 0px;
+  margin: 0px;
+}
+
+.login-label {
+  display: block;
+  text-align: left;
+  font-size: 25px;
+  font-family: "Roboto", sans-serif;
+}
+
+.login-input {
+  width: 100%;
+  height: 40px;
+  margin: 0px;
+  padding: 5px;
+  border: 2px solid #4e91f5;
+  box-sizing: border-box;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4e91f5;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
 .hidden {
   display: none;
 }
