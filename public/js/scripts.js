@@ -1,6 +1,7 @@
 $(document).ready(function() {
     fetchProducts();
 
+    // Add Inventory
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
         const productData = {
@@ -24,6 +25,22 @@ $(document).ready(function() {
         });
     });
 
+    // Delete Inventory
+    function deleteProduct(productId) {
+        $.ajax({
+            url: `/api/products/${productId}`,
+            type: 'DELETE',
+            success: function(response) {
+                console.log(response.message);
+                fetchProducts();
+            },
+            error: function(error) {
+                console.error('Error deleting product:', error);
+            }
+        });
+    }
+
+    // Fetch All Products 
     function fetchProducts() {
         $.ajax({
             url: '/api/products',
@@ -87,10 +104,19 @@ $(document).ready(function() {
                     <td>${product.category}</td>
                     <td>${product.quantity}</td>
                     <td>${product.reorderLevel}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm delete-button" data-id="${product.productID}">Delete</button>
+                    </td>
                 </tr>
             `;
         });
         $('#productList').html(productRows);
+        // Attach delete event to the delete buttons
+        $('.delete-button').on('click', function() {
+            alert("DETLETING...");
+            const productId = $(this).data('id');
+            deleteProduct(productId);
+        });
     }
 
     let currentSort = {
