@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/css/styles.css">
+    <title>Inventory Management System - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src = "https://use.fontawesome.com/0c7a3095b5.js"></script>
+</head>
+<body class = "landing-dashboard-body">
+    <div id = "dashboardMainContainer">
+        <div class = "dashboard_sidebar" id="dashboard_sidebar">
+            <h3 class = "dashboard-logo" id="dashboard_logo">IMSYS</h3>
+            <div class = "dashboard-sidebar-user">
+                <img src="../public/image/profile.png" alt="profile image" id="dashboard_user_img"/>
+                <span>Gomez</span>
+            </div>
+            <div class="dashboard-sidebar-menu">
+                <ul class="dashboard_menu_list">
+                    <li class="menuActive">
+                        <a href=""><i class="fa fa-dashboard menuIcon"></i> <span class = "menuText"> Dashboard</span></a>
+                    </li>
+                    <li>
+                        <a href=""><i class="fa fa-dashboard menuIcon"></i> <span class = "menuText"> Dashboard</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+            <div class = "dashboard-content-container">
+                <div class = "dashboard-content-topnav">
+                    <a href="" id = "toggleBtn"><i class="fa fa-navicon"></i></a>
+                    <a href="" id = "logoutBtn"><i class="fa fa-power-off"></i> Logout</a>
+                </div>
+                <div class ="dashboard_content">
+                    <div class="dashboard_content_main">
+
+                    </div>
+                </div>
+            </div>
+    </div>
+
+
+    <script>
+        //TOP NAV BAR SCRIPT
+        const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('dashboard_sidebar');
+        const mainContainer = document.getElementById('dashboardMainContainer');
+        const dashboard_logo = document.getElementById('dashboard_logo');
+        const dashboard_user_img = document.getElementById('dashboard_user_img')
+        const menuIcon = document.getElementsByClassName("menuText")
+        
+        let isCollapsed = false; 
+
+        toggleBtn.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default action of anchor tag
+        
+            if (isCollapsed) {
+                // Expand sidebar and main container
+                sidebar.style.width = '30%';
+                mainContainer.style.width = '70%';
+                sidebar.style.transition = '0.3s all';
+                isCollapsed = false;
+                dashboard_logo.style.fontSize = "60px";  
+                dashboard_user_img.style.width = "60px";
+                for(var i = 0; i<menuIcon.length;i++){
+                    menuIcon[i].style.display = 'inline-block';
+                }  
+                document.getElementsByClassName('dashboard_menu_list')[0].style.textAlign = 'left';
+            } else {
+                // Collapse sidebar and main container
+                sidebar.style.width = '10%';
+                mainContainer.style.width = '90%'; 
+                sidebar.style.transition = '0.3s all';
+                isCollapsed = true;
+                dashboard_logo.style.fontSize = "40px";
+                dashboard_user_img.style.width = "40px";
+                for(var i = 0; i<menuIcon.length;i++){
+                    menuIcon[i].style.display = 'none';
+                }  
+                document.getElementsByClassName('dashboard_menu_list')[0].style.textAlign = 'center';
+            }
+        });
+    </script>
+</body>
+</html>
