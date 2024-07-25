@@ -15,6 +15,7 @@ CREATE TABLE User (
     hireDate DATE
 );
 
+
 -- Create Product table
 CREATE TABLE Product (
     productID INT AUTO_INCREMENT PRIMARY KEY,
@@ -119,9 +120,8 @@ USE ITISDEV;
 
 -- Insert sample users
 INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES
-('nteach', 'password123', 'Nicholas', 'Teach', 'manager', '2023-01-15'),
-('ecarter', 'password123', 'Emma', 'Carter', 'customer service', '2023-01-20'),
-('acarter', 'password123', 'Alex', 'Carter', 'IT specialist', '2023-01-25');
+('admin', '$2b$10$K8Q8wqI8vFwUG1e9HevFQOFSb/jj5GbOohOCGStYPW6OVQ5aPmD4O', 'John', 'Doe', 'admin', '2022-01-01'), -- password: admin
+('user', '$2b$10$D1ISOSJxOdvElJlIroV5Mue9M.MvHyyu8LP9G/UZcyov5IgqWZUAu', 'Jane', 'Smith', 'user', '2022-02-01'); -- password: user
 
 -- Insert sample products
 INSERT INTO Product (productName, description, price, category, quantity, reorderLevel, createdDate, updatedDate) VALUES
