@@ -40,12 +40,23 @@ app.get('/api/products', (req, res) => {
   });
 });
 
+// Add Inventory
 app.post('/api/products', (req, res) => {
   const { productName, description, price, category, quantity, reorderLevel } = req.body;
   const sql = 'INSERT INTO Product (productName, description, price, category, quantity, reorderLevel, createdDate, updatedDate) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())';
   db.query(sql, [productName, description, price, category, quantity, reorderLevel], (err, result) => {
     if (err) throw err;
     res.json({ id: result.insertId, ...req.body });
+  });
+});
+
+// Delete Inventory
+app.delete('/api/products/:id', (req, res) => {
+  const productId = req.params.id;
+  const sql = 'DELETE FROM Product WHERE productID = ?';
+  db.query(sql, [productId], (err, result) => {
+      if (err) throw err;
+      res.json({ message: 'Product deleted successfully' });
   });
 });
 
