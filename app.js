@@ -103,12 +103,16 @@ app.post('/login', (req, res) => {
 });
 
 // Logout route
-app.get('/logout', (req, res) => {
+app.post('/logout', (req, res) => {
   req.session.destroy(err => {
-    if (err) throw err;
-    res.redirect('/login.html');
+    if (err) {
+      return res.status(500).send('Could not log out.');
+    } else {
+      res.status(200).send('Logged out');
+    }
   });
 });
+
 
 // Dashboard route (protected)
 app.get('/dashboard', (req, res) => {
@@ -120,4 +124,25 @@ app.get('/dashboard', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+});
+
+// Other routes and middleware
+
+// Endpoint to get the username
+app.get('/api/getUsername', (req, res) => {
+  if (req.session && req.session.userId) {
+    const sql = 'SELECT username FROM User WHERE userID = ?';
+    db.query(sql, [req.session.userId], (err, results) => {
+      if (err) {
+        return res.status(500).send('Error fetching username');
+      }
+      if (results.length > 0) {
+        res.json({ username: results[0].username });
+      } else {
+        res.status(404).send('User not found');
+      }
+    });
+  } else {
+    res.status(401).send('Unauthorized');
+  }
 });

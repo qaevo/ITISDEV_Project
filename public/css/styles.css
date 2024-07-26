@@ -25,19 +25,17 @@ body {
   vertical-align: middle;
 }
 
-/* log in styling*/
-
 .landing-page-body {
   background-image: url("../image/loginLanding.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-attachment: fixed;
   background-size: cover;
-
   position: relative;
 }
+
 .landing-page-body::before {
-  content: ""; /* Required for pseudo-elements */
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
@@ -46,7 +44,7 @@ body {
   background-color: rgba(255, 255, 255, 0.7);
 }
 
-div.container-login {
+.container-login {
   position: relative;
   z-index: 1;
   color: black;
@@ -61,7 +59,7 @@ h1.login-header {
   font-family: "Roboto", sans-serif;
 }
 
-div.form-group {
+.form-group {
   margin-bottom: 15px;
 }
 
@@ -112,129 +110,79 @@ div.form-group {
   margin-top: 10px;
 }
 
-/* Dashboard styling*/
-
 .landing-dashboard-body {
   padding: 0px;
   border: 0px;
   margin: 0px;
 }
+
 #dashboardMainContainer {
   display: flex;
   flex-direction: row;
 }
 
-div.dashboard_sidebar {
-  width: 30%;
-  background-color: #323232;
-  height: 100vh;
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  padding: 48px 0 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  transition: width 0.3s;
+  width: 240px;
 }
 
-div.dashboard-content-container {
-  width: 70%;
-  /* background-image: url("../image/loginLanding.png"); */
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #fff;
 }
 
-div.dashboard-content-container {
-  position: relative;
-  /* Add any additional styles you need for dashboard-content-container */
+.sidebar .nav-link .fa {
+  margin-right: 10px;
 }
 
-h3.dashboard-logo {
-  margin-top: 20px;
-  margin-bottom: 10px;
+.sidebar .nav-link.active {
   color: #007bff;
-  font-size: 60px;
-  text-align: center;
-}
-div.dashboard-sidebar-user {
-  text-align: center;
-  position: relative;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #fff;
-}
-
-div.dashboard-sidebar-user img {
-  width: 60px;
-  height: auto;
-  display: inline-block;
-  border-radius: 50%;
-  border: 2px solid #007bff;
-  margin-right: 15px;
-}
-
-div.dashboard-sidebar-user span {
-  position: absolute;
-  font-size: 16px;
-  text-transform: uppercase;
-  color: #fff;
-  display: inline-block;
-  margin-top: 20px;
-}
-
-div.dashboard-content-container {
-  background: #f4f6f9;
-  width: 80%;
-}
-
-ul.dashboard_menu_list {
-  list-style-type: none;
-  padding-left: 0px;
-  margin-top: 20px;
-}
-
-ul.dashboard_menu_list li {
-  padding: 20px 0px;
-  padding-left: 20px;
-  text-transform: uppercase;
-}
-
-ul.dashboard_menu_list li a {
-  text-decoration: none;
-  color: #fff;
-  height: 100%;
-  font-size: 20px;
-  display: block;
-}
-
-ul.dashboard_menu_list li a.menuActive {
-  background-color: #007bff;
-  color: #fff;
-  border: 1px solid #fff;
-}
-
-ul.dashboard_menu_list li:hover {
-  background-color: #007bff;
-  color: #fff;
-  border: 1px solid #fff;
-  transition: 0.3s all;
-}
-
-div.dashboard-content-topnav {
-  background: #fff;
-  padding: 20px;
-}
-
-div.dashboard-content-topnav a {
-  color: #848383;
-  font-size: 20px;
-  text-decoration: none;
-}
-
-a#logoutBtn {
-  float: right;
-}
-
-div.dashboard_content {
-  padding: 40px 10px 10px 10px;
-}
-div.dashboard_content_main {
   background-color: #fff;
-  height: 100%;
+}
+
+.sidebar .nav-link:hover {
+  color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.sidebar .text-primary {
+  color: #007bff !important;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar.collapsed .nav-link .fa {
+  margin-right: 0;
+}
+
+.sidebar.collapsed .nav-link span {
+  display: none;
+}
+
+.dashboard-content-container {
+  margin-left: 240px;
+  transition: margin-left 0.3s;
+}
+
+.dashboard-content-container.collapsed {
+  margin-left: 80px;
+}
+
+.dashboard-content-container .dashboard_content_main {
+  background-color: #fff;
   min-height: 800px;
 }
+.defaultclass{
+  margin-left: 300px;
+  margin-right: 50px;
 
-div.dashboard-menu-list li a i {
-  font-size: 25px;
 }
