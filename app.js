@@ -159,6 +159,101 @@ app.listen(port, () => {
 });
 
 // Other routes and middleware
+// Fetch inventory summary
+app.get('/api/getInventorySummary', (req, res) => {
+  const query = 'SELECT * FROM Product';
+  db.query(query, (error, results) => {
+      if (error) {
+          console.error('Error fetching inventory summary: ', error);
+          res.status(500).send(error);
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+// Fetch inventory transactions
+app.get('/api/getInventoryTransactions', (req, res) => {
+  const query = `
+      SELECT 
+          it.transactionID, it.transactionType, it.quantity, it.transactionDate, 
+          p.productID, p.productName, u.userID, u.username
+      FROM 
+          InventoryTransaction it
+      JOIN 
+          Product p ON it.productID = p.productID
+      JOIN 
+          User u ON it.userID = u.userID
+  `;
+  db.query(query, (error, results) => {
+      if (error) {
+          console.error('Error fetching inventory transactions: ', error);
+          res.status(500).send(error);
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+// Fetch supplier information
+app.get('/api/getSupplierInfo', (req, res) => {
+  const query = 'SELECT * FROM Supplier';
+  db.query(query, (error, results) => {
+      if (error) {
+          console.error('Error fetching supplier info: ', error);
+          res.status(500).send(error);
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+// Fetch purchase orders
+app.get('/api/getPurchaseOrders', (req, res) => {
+  const query = `
+      SELECT 
+          po.purchaseOrderID, po.orderDate, po.status, po.totalAmount,
+          s.supplierID, s.supplierName, u.userID, u.username
+      FROM 
+          PurchaseOrder po
+      JOIN 
+          Supplier s ON po.supplierID = s.supplierID
+      JOIN 
+          User u ON po.userID = u.userID
+  `;
+  db.query(query, (error, results) => {
+      if (error) {
+          console.error('Error fetching purchase orders: ', error);
+          res.status(500).send(error);
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+// Fetch sales orders
+app.get('/api/getSalesOrders', (req, res) => {
+  const query = `
+      SELECT 
+          o.orderID, o.orderDate, o.status, o.totalAmount,
+          c.customerID, c.firstName, c.lastName, u.userID, u.username
+      FROM 
+          \`Order\` o
+      JOIN 
+          Customer c ON o.customerID = c.customerID
+      JOIN 
+          User u ON o.userID = u.userID
+  `;
+  db.query(query, (error, results) => {
+      if (error) {
+          console.error('Error fetching sales orders: ', error);
+          res.status(500).send(error);
+      } else {
+          res.json(results);
+      }
+  });
+});
+
 
 // Endpoint to get the username
 app.get("/api/getUsername", (req, res) => {
