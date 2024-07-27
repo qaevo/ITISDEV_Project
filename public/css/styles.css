@@ -226,3 +226,29 @@ h1.login-header {
   margin-right: 50px;
 
 }
+
+/* Filter Feature */
+
+#filter-section {
+  margin-left: 300px; 
+  margin-right: 50px;
+  margin-bottom: 20px;
+}
+
+#filter-section .card-header {
+  background-color: #007bff;
+  color: white;
+}
+
+#filter-section .form-control {
+  margin-bottom: 10px;
+}
+
+#filter-section #filter-button,
+#filter-section #toggle-advanced-filters {
+  width: 100%;
+}
+
+#advanced-filters .form-control {
+  margin-bottom: 10px;
+}

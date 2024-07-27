@@ -88,6 +88,18 @@ $(document).ready(function() {
         displayResults(filteredProducts);
     });
 
+    $('#reset-button').on('click', function() {
+        $('#search-bar').val('');
+        $('#category-filter').val('');
+        $('#min-price').val('');
+        $('#max-price').val('');
+        $('#min-quantity').val('');
+        $('#max-quantity').val('');
+        $('#min-reorder-level').val('');
+        $('#max-reorder-level').val('');
+        displayResults(window.allProducts);
+    });
+
     $('#toggle-advanced-filters').on('click', function() {
         $('#advanced-filters').toggleClass('hidden');
     });
