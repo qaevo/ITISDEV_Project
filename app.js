@@ -514,3 +514,44 @@ app.get('/api/admin-logs', (req, res) => {
       }
   });
 });
+
+// Fetch user data
+app.get('/api/getUserData', (req, res) => {
+  const query = 'SELECT * FROM User';
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error fetching user data:', error);
+      res.status(500).send(error);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get("/api/getUser/:userID", (req, res) => {
+  const userID = req.params.userID;
+  const query = "SELECT * FROM User WHERE userID = ?";
+  db.query(query, [userID], (err, result) => {
+    if (err) throw err;
+    res.json(result[0]);
+  });
+});
+
+app.put("/api/updateUser/:userID", (req, res) => {
+  const userID = req.params.userID;
+  const { username, firstName, lastName, role } = req.body;
+  const query = "UPDATE User SET username = ?, firstName = ?, lastName = ?, role = ? WHERE userID = ?";
+  db.query(query, [username, firstName, lastName, role, userID], (err) => {
+    if (err) throw err;
+    res.sendStatus(200);
+  });
+});
+
+app.delete("/api/deleteUser/:userID", (req, res) => {
+  const userID = req.params.userID;
+  const query = "DELETE FROM User WHERE userID = ?";
+  db.query(query, [userID], (err) => {
+    if (err) throw err;
+    res.sendStatus(200);
+  });
+});
