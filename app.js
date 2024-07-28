@@ -146,6 +146,37 @@ app.post("/logout", (req, res) => {
   });
 });
 
+
+//Edit inventory
+// API endpoint to get a product by ID
+app.get('/api/products/:id', (req, res) => {
+  const productID = parseInt(req.params.id, 10);
+  const product = products.find(p => p.productID === productID);
+
+  if (product) {
+      res.json(product);
+  } else {
+      res.status(404).json({ message: 'Product not found' });
+  }
+});
+
+// API endpoint to update a product by ID
+app.put('/api/products/:id', (req, res) => {
+  const productID = parseInt(req.params.id, 10);
+  const productIndex = products.findIndex(p => p.productID === productID);
+
+  if (productIndex !== -1) {
+      const updatedProduct = {
+          productID: productID,
+          ...req.body
+      };
+      products[productIndex] = updatedProduct;
+      res.json(updatedProduct);
+  } else {
+      res.status(404).json({ message: 'Product not found' });
+  }
+});
+
 // Dashboard route (protected)
 app.get("/dashboard", (req, res) => {
   if (!req.session.userId) {
@@ -250,6 +281,158 @@ app.get('/api/getSalesOrders', (req, res) => {
           res.status(500).send(error);
       } else {
           res.json(results);
+      }
+  });
+});
+
+// Get all users
+app.get('/api/users', (req, res) => {
+  db.query('SELECT * FROM User', (err, results) => {
+      if (err) {
+          console.error('Error fetching users:', err);
+          res.status(500).json({ error: 'Error fetching users' });
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+// Get a single user
+app.get('/api/getUser/:id', (req, res) => {
+  const query = 'SELECT * FROM User WHERE userID = ?';
+  db.query(query, [req.params.id], (err, results) => {
+      if (err) throw err;
+      res.json(results[0]);
+  });
+});
+
+// Add a new user
+app.post('/api/addUser', (req, res) => {
+  const { username, password, firstName, lastName, role, hireDate } = req.body;
+  const query = 'INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(query, [username, password, firstName, lastName, role, hireDate], (err, results) => {
+      if (err) throw err;
+      res.json({ success: true });
+  });
+});
+
+// Edit a user
+app.post('/api/addEditUser', (req, res) => {
+  const { userID, username, password, firstName, lastName, role, hireDate } = req.body;
+  const query = userID ? 'UPDATE User SET username = ?, password = ?, firstName = ?, lastName = ?, role = ?, hireDate = ? WHERE userID = ?' : 'INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES (?, ?, ?, ?, ?, ?)';
+  const values = userID ? [username, password, firstName, lastName, role, hireDate, userID] : [username, password, firstName, lastName, role, hireDate];
+
+  db.query(query, values, (err, results) => {
+      if (err) {
+          console.error('Error adding/editing user:', err);
+          res.status(500).json({ error: 'Error adding/editing user' });
+      } else {
+          res.json({ success: true });
+      }
+  });
+});
+
+
+// Delete a user
+app.delete('/api/deleteUser/:id', (req, res) => {
+  const userID = req.params.id;
+
+  db.query('DELETE FROM `Order` WHERE userID = ?', [userID], (err, results) => {
+      if (err) {
+          console.error('Error deleting orders:', err);
+          res.status(500).json({ error: 'Error deleting orders' });
+      } else {
+          db.query('DELETE FROM User WHERE userID = ?', [userID], (err, results) => {
+              if (err) {
+                  console.error('Error deleting user:', err);
+                  res.status(500).json({ error: 'Error deleting user' });
+              } else {
+                  res.json({ success: true });
+              }
+          });
+      }
+  });
+});
+// Get all orders
+app.get('/api/orders', (req, res) => {
+  db.query('SELECT * FROM `Order`', (err, results) => {
+      if (err) {
+          console.error('Error fetching orders:', err);
+          res.status(500).json({ error: 'Error fetching orders' });
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+
+// Get a single order
+app.post('/api/addEditOrder', (req, res) => {
+  const { orderID, customerID, userID, orderDate, totalAmount, status } = req.body;
+  const query = orderID ? 'UPDATE `Order` SET customerID = ?, userID = ?, orderDate = ?, totalAmount = ?, status = ? WHERE orderID = ?' : 'INSERT INTO `Order` (customerID, userID, orderDate, totalAmount, status) VALUES (?, ?, ?, ?, ?)';
+  const values = orderID ? [customerID, userID, orderDate, totalAmount, status, orderID] : [customerID, userID, orderDate, totalAmount, status];
+
+  db.query(query, values, (err, results) => {
+      if (err) {
+          console.error('Error adding/editing order:', err);
+          res.status(500).json({ error: 'Error adding/editing order' });
+      } else {
+          res.json({ success: true });
+      }
+  });
+});
+
+
+/* Add a new order
+app.post('/api/addOrder', (req, res) => {
+  const { customerID, userID, orderDate, totalAmount, status } = req.body;
+  const query = 'INSERT INTO `Order` (customerID, userID, orderDate, totalAmount, status) VALUES (?, ?, ?, ?, ?)';
+  db.query(query, [customerID, userID, orderDate, totalAmount, status], (err, results) => {
+      if (err) throw err;
+      res.json({ success: true });
+  });
+});*/
+
+// Edit an order
+app.delete('/api/deleteOrder/:id', (req, res) => {
+  const orderID = req.params.id;
+
+  db.query('DELETE FROM OrderItem WHERE orderID = ?', [orderID], (err, results) => {
+      if (err) {
+          console.error('Error deleting order items:', err);
+          res.status(500).json({ error: 'Error deleting order items' });
+      } else {
+          db.query('DELETE FROM `Order` WHERE orderID = ?', [orderID], (err, results) => {
+              if (err) {
+                  console.error('Error deleting order:', err);
+                  res.status(500).json({ error: 'Error deleting order' });
+              } else {
+                  res.json({ success: true });
+              }
+          });
+      }
+  });
+});
+
+// Delete an order
+app.delete('/api/deleteUser/:id', (req, res) => {
+  const userID = req.params.id;
+  
+  // Delete related inventory transactions first
+  db.query('DELETE FROM InventoryTransaction WHERE userID = ?', [userID], (err, results) => {
+      if (err) {
+          console.error('Error deleting inventory transactions:', err);
+          res.status(500).json({ error: 'Error deleting inventory transactions' });
+      } else {
+          // Delete the user
+          db.query('DELETE FROM User WHERE userID = ?', [userID], (err, results) => {
+              if (err) {
+                  console.error('Error deleting user:', err);
+                  res.status(500).json({ error: 'Error deleting user' });
+              } else {
+                  res.json({ success: true });
+              }
+          });
       }
   });
 });
