@@ -326,8 +326,23 @@
       function sortTable(table, column, order) {
           const rows = Array.from(table.querySelectorAll('tbody tr'));
           rows.sort((a, b) => {
-              const aValue = a.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
-              const bValue = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
+              let aValue = a.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
+              let bValue = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
+
+              
+              if (!isNaN(aValue) && !isNaN(bValue)) {
+                  aValue = parseFloat(aValue);
+                  bValue = parseFloat(bValue);
+              }
+
+              
+              const dateA = Date.parse(aValue);
+              const dateB = Date.parse(bValue);
+              if (!isNaN(dateA) && !isNaN(dateB)) {
+                  aValue = dateA;
+                  bValue = dateB;
+              }
+
               return (aValue > bValue ? 1 : -1) * (order === 'asc' ? 1 : -1);
           });
           rows.forEach(row => table.querySelector('tbody').appendChild(row));
