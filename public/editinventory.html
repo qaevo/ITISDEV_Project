@@ -73,7 +73,7 @@
         </div>
 
         <!-- Edit Product Form -->
-        <div id="editProductForm" class="card mb-4" style="display: none">
+        <div id="editProductForm" class="card mb-4">
           <div class="card-header">Edit Product</div>
           <div class="card-body">
             <form id="productForm">
@@ -199,78 +199,89 @@
       });
 
       $(document).ready(function () {
-        fetchProducts();
+    fetchProducts();
 
-        // Fetch and populate products in the select box
-        function fetchProducts() {
-          $.ajax({
+    // Fetch and populate products in the select box
+    function fetchProducts() {
+        $.ajax({
             url: "/api/products",
             type: "GET",
             success: function (products) {
-              let options = '<option value="">Select a product</option>';
-              products.forEach((product) => {
-                options += `<option value="${product.productID}">${product.productName}</option>`;
-              });
-              $("#selectProduct").html(options);
+                let options = '<option value="">Select a product</option>';
+                products.forEach((product) => {
+                    options += `<option value="${product.productID}">${product.productName}</option>`;
+                });
+                $("#selectProduct").html(options);
             },
-          });
-        }
+            error: function (xhr, status, error) {
+                console.error("Error fetching products:", error);
+            }
+        });
+    }
 
-        // Handle product selection
-        $("#selectProduct").on("change", function () {
-          const id = $(this).val();
-          if (id) {
+    // Handle product selection
+    $("#selectProduct").on("change", function () {
+        const productId = $(this).val();
+        if (productId) {
             $.ajax({
-              url: `/api/products/${id}`,
-              type: "GET",
-              success: function (product) {
-                $("#productId").val(product.productID);
-                $("#productName").val(product.productName);
-                $("#description").val(product.description);
-                $("#price").val(product.price);
-                $("#category").val(product.category);
-                $("#quantity").val(product.quantity);
-                $("#reorderLevel").val(product.reorderLevel);
-                $("#editProductForm").show();
-              },
+                url: `/api/products/${productId}`,
+                type: "GET",
+                success: function (product) {
+                    // Populate form fields with product data
+                    $("#productId").val(product.productID);
+                    $("#productName").val(product.productName);
+                    $("#description").val(product.description);
+                    $("#price").val(product.price);
+                    $("#category").val(product.category);
+                    $("#quantity").val(product.quantity);
+                    $("#reorderLevel").val(product.reorderLevel);
+                    $("#editProductForm").show();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching product data:", error);
+                }
             });
-          } else {
-            $("#editProductForm").hide();
+        } else {
+            // Reset form if no product is selected
             $("#productForm")[0].reset();
             $("#productId").val("");
-          }
-        });
+            $("#editProductForm").hide();
+        }
+    });
 
-        // Handle form submission for updating a product
-        $("#productForm").on("submit", function (e) {
-          e.preventDefault();
-          const productData = {
+    // Handle form submission for updating a product
+    $("#productForm").on("submit", function (e) {
+        e.preventDefault();
+        const productData = {
             productName: $("#productName").val(),
             description: $("#description").val(),
             price: $("#price").val(),
             category: $("#category").val(),
             quantity: $("#quantity").val(),
             reorderLevel: $("#reorderLevel").val(),
-          };
+        };
 
-          const productId = $("#productId").val();
-          if (productId) {
+        const productId = $("#productId").val();
+        if (productId) {
             // Update product
             $.ajax({
-              url: `/api/products/${productId}`,
-              type: "PUT",
-              contentType: "application/json",
-              data: JSON.stringify(productData),
-              success: function (response) {
-                $("#productForm")[0].reset();
-                $("#productId").val("");
-                $("#editProductForm").hide();
-                fetchProducts();
-                $("#selectProduct").val("");
-              },
+                url: `/api/products/${productId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(productData),
+                success: function (response) {
+                    $("#productForm")[0].reset();
+                    $("#productId").val("");
+                    $("#editProductForm").hide();
+                    fetchProducts();
+                    $("#selectProduct").val("");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error updating product:", error);
+                }
             });
-          }
-        });
+        }
+    });
       });
     </script>
   </body>

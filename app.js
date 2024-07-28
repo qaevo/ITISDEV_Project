@@ -196,14 +196,24 @@ app.post("/logout", (req, res) => {
 //Edit inventory
 // API endpoint to get a product by ID
 app.get('/api/products/:id', (req, res) => {
-  const productID = parseInt(req.params.id, 10);
-  const product = products.find(p => p.productID === productID);
+  const productID = req.params.id; // Parse the productID from URL
+  const sql = 'SELECT * FROM Product WHERE productID = ?'; // SQL query
 
-  if (product) {
-      res.json(product);
-  } else {
-      res.status(404).json({ message: 'Product not found' });
-  }
+  console.log(`Fetching product with ID: ${productID}`); // Debug log for productID
+
+  db.query(sql, [productID], (err, results) => {
+    if (err) {
+      console.error('Error fetching product data:', err); // Log error details
+      return res.status(500).json({ error: 'Failed to fetch product data' });
+    }
+
+    if (results.length === 0) {
+      console.log('Product not found'); // Log if product not found
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(results[0]); // Send the product data
+  });
 });
 
 // API endpoint to update a product by ID
