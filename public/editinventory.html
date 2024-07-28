@@ -13,37 +13,44 @@
   </head>
   <body>
     <div class="container mt-5">
-        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
-            <div class="sidebar-sticky">
-                <h3 class="dashboard-logo text-center text-primary my-4">IMSYS</h3>
-                <div class="text-center mb-4">
-                    <img src="image/profile.png" class="rounded-circle border border-primary" alt="profile image" id="dashboard_user_img" width="60" height="60"/>
-                    <span class="d-block text-white mt-2" id="username"></span>
-                </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="addinventory.html">
-                            <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="editinventory.html">
-                            <i class="fa fa-edit"></i> <span>Edit Inventory</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html">
-                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item mt-auto">
-                        <a class="nav-link text-danger" href="#" id="logoutBtn">
-                            <i class="fa fa-power-off"></i> <span>Logout</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+      <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+        <div class="sidebar-sticky">
+          <h3 class="dashboard-logo text-center text-primary my-4">IMSYS</h3>
+          <div class="text-center mb-4">
+            <img
+              src="image/profile.png"
+              class="rounded-circle border border-primary"
+              alt="profile image"
+              id="dashboard_user_img"
+              width="60"
+              height="60"
+            />
+            <span class="d-block text-white mt-2" id="username"></span>
+          </div>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="addinventory.html">
+                <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="editinventory.html">
+                <i class="fa fa-edit"></i> <span>Edit Inventory</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html">
+                <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item mt-auto">
+              <a class="nav-link text-danger" href="#" id="logoutBtn">
+                <i class="fa fa-power-off"></i> <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
       <div class="defaultclass">
         <h1 class="mb-4">Warehouse Management System</h1>
 
@@ -128,113 +135,112 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Fetch the username from the server and update the username span
-            fetch('/api/getUsername')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('username').textContent = data.username;
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                    document.getElementById('username').textContent = 'Guest'; // Fallback text
-                });
+      document.addEventListener('DOMContentLoaded', () => {
+        // Fetch the username from the server and update the username span
+        fetch('/api/getUsername')
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            document.getElementById('username').textContent = data.username;
+          })
+          .catch((error) => {
+            console.error('There was a problem with the fetch operation:', error);
+            document.getElementById('username').textContent = 'Guest'; // Fallback text
+          });
 
-            // Logout button functionality
-            document.getElementById('logoutBtn').addEventListener('click', (event) => {
-                event.preventDefault(); // Prevent default action
+        // Logout button functionality
+        document.getElementById('logoutBtn').addEventListener('click', (event) => {
+          event.preventDefault(); // Prevent default action
 
-                fetch('/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.href = 'index.html'; // Redirect to index page after logout
-                    } else {
-                        // Handle logout failure
-                        alert('Logout failed');
-                    }
-                });
-            });
+          fetch('/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }).then((response) => {
+            if (response.ok) {
+              window.location.href = 'index.html'; // Redirect to index page after logout
+            } else {
+              // Handle logout failure
+              alert('Logout failed');
+            }
+          });
         });
-    </script>
-    <script>
+      });
+
       $(document).ready(function () {
         fetchProducts();
 
         // Fetch and populate products in the select box
         function fetchProducts() {
           $.ajax({
-            url: "/api/products",
-            type: "GET",
+            url: '/api/products',
+            type: 'GET',
             success: function (products) {
               let options = '<option value="">Select a product</option>';
               products.forEach((product) => {
                 options += `<option value="${product.productID}">${product.productName}</option>`;
               });
-              $("#selectProduct").html(options);
+              $('#selectProduct').html(options);
             },
           });
         }
 
         // Handle product selection
-        $("#selectProduct").on("change", function () {
+        $('#selectProduct').on('change', function () {
           const id = $(this).val();
           if (id) {
             $.ajax({
               url: `/api/products/${id}`,
-              type: "GET",
+              type: 'GET',
               success: function (product) {
-                $("#productId").val(product.productID);
-                $("#productName").val(product.productName);
-                $("#description").val(product.description);
-                $("#price").val(product.price);
-                $("#category").val(product.category);
-                $("#quantity").val(product.quantity);
-                $("#reorderLevel").val(product.reorderLevel);
-                $("#editProductForm").show();
+                $('#productId').val(product.productID);
+                $('#productName').val(product.productName);
+                $('#description').val(product.description);
+                $('#price').val(product.price);
+                $('#category').val(product.category);
+                $('#quantity').val(product.quantity);
+                $('#reorderLevel').val(product.reorderLevel);
+                $('#editProductForm').show();
               },
             });
           } else {
-            $("#editProductForm").hide();
-            $("#productForm")[0].reset();
-            $("#productId").val("");
+            $('#editProductForm').hide();
+            $('#productForm')[0].reset();
+            $('#productId').val('');
           }
         });
 
         // Handle form submission for updating a product
-        $("#productForm").on("submit", function (e) {
+        $('#productForm').on('submit', function (e) {
           e.preventDefault();
           const productData = {
-            productName: $("#productName").val(),
-            description: $("#description").val(),
-            price: $("#price").val(),
-            category: $("#category").val(),
-            quantity: $("#quantity").val(),
-            reorderLevel: $("#reorderLevel").val(),
+            productName: $('#productName').val(),
+            description: $('#description').val(),
+            price: $('#price').val(),
+            category: $('#category').val(),
+            quantity: $('#quantity').val(),
+            reorderLevel: $('#reorderLevel').val(),
           };
 
-          const productId = $("#productId").val();
+          const productId = $('#productId').val();
           if (productId) {
             // Update product
             $.ajax({
               url: `/api/products/${productId}`,
-              type: "PUT",
-              contentType: "application/json",
+              type: 'PUT',
+              contentType: 'application/json',
               data: JSON.stringify(productData),
               success: function (response) {
-                $("#productForm")[0].reset();
-                $("#productId").val("");
-                $("#editProductForm").hide();
+                $('#productForm')[0].reset();
+                $('#productId').val('');
+                $('#editProductForm').hide();
                 fetchProducts();
-                $("#selectProduct").val("");
+                $('#selectProduct').val('');
               },
             });
           }
