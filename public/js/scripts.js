@@ -1,8 +1,7 @@
 $(document).ready(function() {
-    let currentFilteredProducts = [];
-
     fetchProducts();
 
+    // Add Inventory
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
         const productData = {
@@ -26,13 +25,28 @@ $(document).ready(function() {
         });
     });
 
+    // Delete Inventory
+    function deleteProduct(productId) {
+        $.ajax({
+            url: `/api/products/${productId}`,
+            type: 'DELETE',
+            success: function(response) {
+                console.log(response.message);
+                fetchProducts();
+            },
+            error: function(error) {
+                console.error('Error deleting product:', error);
+            }
+        });
+    }
+
+    // Fetch All Products 
     function fetchProducts() {
         $.ajax({
             url: '/api/products',
             type: 'GET',
             success: function(products) {
-                window.allProducts = products; // Store products globally for filtering and sorting
-                currentFilteredProducts = products;
+                window.allProducts = products; 
                 displayResults(products);
                 populateCategories(products);
             }
@@ -51,7 +65,6 @@ $(document).ready(function() {
         });
     }
 
-    // BEGIN: Added Filter and Reset Functionality
     $('#filter-button').on('click', function() {
         const searchTerm = $('#search-bar').val().toLowerCase();
         const selectedCategory = $('#category-filter').val();
@@ -62,7 +75,7 @@ $(document).ready(function() {
         const minReorderLevel = parseFloat($('#min-reorder-level').val()) || 0;
         const maxReorderLevel = parseFloat($('#max-reorder-level').val()) || Number.MAX_VALUE;
 
-        currentFilteredProducts = window.allProducts.filter(product => {
+        const filteredProducts = window.allProducts.filter(product => {
             const matchesSearchTerm = product.productName.toLowerCase().includes(searchTerm);
             const matchesCategory = selectedCategory ? product.category === selectedCategory : true;
             const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
@@ -72,7 +85,7 @@ $(document).ready(function() {
             return matchesSearchTerm && matchesCategory && matchesPrice && matchesQuantity && matchesReorderLevel;
         });
 
-        displayResults(currentFilteredProducts);
+        displayResults(filteredProducts);
     });
 
     $('#reset-button').on('click', function() {
@@ -84,14 +97,12 @@ $(document).ready(function() {
         $('#max-quantity').val('');
         $('#min-reorder-level').val('');
         $('#max-reorder-level').val('');
-        currentFilteredProducts = window.allProducts;
         displayResults(window.allProducts);
     });
 
     $('#toggle-advanced-filters').on('click', function() {
         $('#advanced-filters').toggleClass('hidden');
     });
-    // END: Added Filter and Reset Functionality
 
     function displayResults(products) {
         let productRows = '';
@@ -105,11 +116,19 @@ $(document).ready(function() {
                     <td>${product.category}</td>
                     <td>${product.quantity}</td>
                     <td>${product.reorderLevel}</td>
-                    <td><button class="btn btn-danger delete-btn" data-id="${product.productID}">Delete</button></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm delete-button" data-id="${product.productID}">Delete</button>
+                    </td>
                 </tr>
             `;
         });
         $('#productList').html(productRows);
+        // Attach delete event to the delete buttons
+        $('.delete-button').on('click', function() {
+            alert("DETLETING...");
+            const productId = $(this).data('id');
+            deleteProduct(productId);
+        });
     }
 
     let currentSort = {
@@ -125,7 +144,7 @@ $(document).ready(function() {
         }
 
         currentSort = { column, order };
-        const sortedProducts = [...currentFilteredProducts].sort((a, b) => {
+        const sortedProducts = [...window.allProducts].sort((a, b) => {
             if (a[column] > b[column]) return order === 'asc' ? 1 : -1;
             if (a[column] < b[column]) return order === 'asc' ? -1 : 1;
             return 0;
