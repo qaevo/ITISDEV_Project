@@ -54,28 +54,73 @@ app.get("/api/products", (req, res) => {
 });
 
 // Add Inventory
-app.post("/api/products", (req, res) => {
-  const { productName, description, price, category, quantity, reorderLevel } =
-    req.body;
-  const sql =
-    "INSERT INTO Product (productName, description, price, category, quantity, reorderLevel, createdDate, updatedDate) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
-  db.query(
-    sql,
-    [productName, description, price, category, quantity, reorderLevel],
-    (err, result) => {
-      if (err) throw err;
-      res.json({ id: result.insertId, ...req.body });
+app.post('/api/products', (req, res) => {
+  const { productName, description, price, category, quantity, reorderLevel } = req.body;
+  const username = req.session.username; 
+
+  if (!username) {
+    return res.status(403).json({ error: 'User not logged in' });
+  }
+
+  const sql = 'INSERT INTO Product (productName, description, price, category, quantity, reorderLevel, createdDate, updatedDate) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())';
+  
+  db.query(sql, [productName, description, price, category, quantity, reorderLevel], (err, result) => {
+    if (err) {
+      console.error('Error adding product:', err);
+      res.status(500).json({ error: 'Failed to add product' });
+    } else {
+      const logSql = 'INSERT INTO admin_logs (action, user, productID, productName) VALUES (?, ?, ?, ?)';
+      db.query(logSql, ['Added Product', username, result.insertId, productName], (logErr) => {
+        if (logErr) {
+          console.error('Error logging action:', logErr);
+        }
+      });
+      res.json({ message: 'Product added successfully' });
     }
-  );
+  });
 });
 
 // Delete Inventory
-app.delete("/api/products/:id", (req, res) => {
+app.delete('/api/products/:id', (req, res) => {
   const productId = req.params.id;
-  const sql = "DELETE FROM Product WHERE productID = ?";
-  db.query(sql, [productId], (err, result) => {
-    if (err) throw err;
-    res.json({ message: "Product deleted successfully" });
+  const username = req.session.username; 
+
+  if (!username) {
+      return res.status(403).json({ error: 'User not logged in' });
+  }
+
+ 
+  const fetchProductSql = 'SELECT productName FROM Product WHERE productID = ?';
+  db.query(fetchProductSql, [productId], (fetchErr, fetchResult) => {
+      if (fetchErr) {
+          console.error('Error fetching product details:', fetchErr);
+          return res.status(500).json({ error: 'Failed to fetch product details' });
+      }
+
+      if (fetchResult.length === 0) {
+          return res.status(404).json({ error: 'Product not found' });
+      }
+
+      const productName = fetchResult[0].productName;
+
+      
+      const deleteProductSql = 'DELETE FROM Product WHERE productID = ?';
+      db.query(deleteProductSql, [productId], (deleteErr) => {
+          if (deleteErr) {
+              console.error('Error deleting product:', deleteErr);
+              return res.status(500).json({ error: 'Failed to delete product' });
+          }
+
+          
+          const logSql = 'INSERT INTO admin_logs (action, user, productID, productName) VALUES (?, ?, ?, ?)';
+          db.query(logSql, ['Deleted Product', username, productId, productName], (logErr) => {
+              if (logErr) {
+                  console.error('Error logging action:', logErr);
+              }
+          });
+
+          return res.json({ message: 'Product deleted successfully' });
+      });
   });
 });
 
@@ -117,6 +162,7 @@ app.post("/login", (req, res) => {
         }
         if (isMatch) {
           req.session.userId = user.userID;
+          req.session.username = user.username;
           console.log("Password match successful.");
 
           return res.json({ success: true });
@@ -455,4 +501,16 @@ app.get("/api/getUsername", (req, res) => {
   } else {
     res.status(401).send("Unauthorized");
   }
+});
+
+app.get('/api/admin-logs', (req, res) => {
+  const sql = 'SELECT * FROM admin_logs ORDER BY timestamp DESC';
+  db.query(sql, (err, result) => {
+      if (err) {
+          console.error('Error fetching admin logs:', err);
+          res.status(500).json({ error: 'Failed to fetch admin logs' });
+      } else {
+          res.json(result);
+      }
+  });
 });
