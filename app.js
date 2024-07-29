@@ -196,41 +196,45 @@ app.post("/logout", (req, res) => {
 //Edit inventory
 // API endpoint to get a product by ID
 app.get('/api/products/:id', (req, res) => {
-  const productID = req.params.id; // Parse the productID from URL
-  const sql = 'SELECT * FROM Product WHERE productID = ?'; // SQL query
+  const productID = req.params.id; 
+  const sql = 'SELECT * FROM Product WHERE productID = ?'; 
 
-  console.log(`Fetching product with ID: ${productID}`); // Debug log for productID
+  console.log(`Fetching product with ID: ${productID}`); 
 
   db.query(sql, [productID], (err, results) => {
     if (err) {
-      console.error('Error fetching product data:', err); // Log error details
+      console.error('Error fetching product data:', err); 
       return res.status(500).json({ error: 'Failed to fetch product data' });
     }
 
     if (results.length === 0) {
-      console.log('Product not found'); // Log if product not found
+      console.log('Product not found'); 
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json(results[0]); // Send the product data
+    res.json(results[0]); 
   });
 });
 
 // API endpoint to update a product by ID
 app.put('/api/products/:id', (req, res) => {
-  const productID = parseInt(req.params.id, 10);
-  const productIndex = products.findIndex(p => p.productID === productID);
+  const productID = req.params.id;
+  const { productName, description, price, category, quantity, reorderLevel } = req.body;
 
-  if (productIndex !== -1) {
-      const updatedProduct = {
-          productID: productID,
-          ...req.body
-      };
-      products[productIndex] = updatedProduct;
-      res.json(updatedProduct);
-  } else {
-      res.status(404).json({ message: 'Product not found' });
-  }
+  const sql = 'UPDATE Product SET productName = ?, description = ?, price = ?, category = ?, quantity = ?, reorderLevel = ?, updatedDate = NOW() WHERE productID = ?';
+
+  db.query(sql, [productName, description, price, category, quantity, reorderLevel, productID], (err, result) => {
+    if (err) {
+      console.error('Error updating product:', err);
+      return res.status(500).json({ error: 'Failed to update product' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json({ message: 'Product updated successfully' });
+  });
 });
 
 // Dashboard route (protected)
