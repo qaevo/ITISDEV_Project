@@ -414,9 +414,11 @@ app.get('/api/getUser/:id', (req, res) => {
   const query = 'SELECT * FROM User WHERE userID = ?';
   db.query(query, [req.params.id], (err, results) => {
       if (err) throw err;
+      console.log('User fetched:', results[0]); // Add this line
       res.json(results[0]);
   });
 });
+
 
 // Add a new user
 app.post('/api/addUser', (req, res) => {
@@ -431,25 +433,29 @@ app.post('/api/addUser', (req, res) => {
 // Edit a user
 app.post('/api/addEditUser', (req, res) => {
   const { userID, username, password, firstName, lastName, role, hireDate } = req.body;
-  const query = userID ? 'UPDATE User SET username = ?, password = ?, firstName = ?, lastName = ?, role = ?, hireDate = ? WHERE userID = ?' : 'INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES (?, ?, ?, ?, ?, ?)';
-  const values = userID ? [username, password, firstName, lastName, role, hireDate, userID] : [username, password, firstName, lastName, role, hireDate];
-
+  const query = userID ? 
+    'UPDATE User SET username = ?, password = ?, firstName = ?, lastName = ?, role = ?, hireDate = ? WHERE userID = ?' :
+    'INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES (?, ?, ?, ?, ?, ?)';
+  
+  const values = userID ? [username, password, firstName, lastName, role, hireDate, userID] :
+                          [username, password, firstName, lastName, role, hireDate];
+  
   db.query(query, values, (err, results) => {
     if (err) {
       console.error('Error adding/editing user:', err);
-      res.status(500).json({ error: 'Error adding/editing user' });
-    } else {
-      const action = userID ? 'Edited User' : 'Added User';
-      const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
-      db.query(logSql, [action, req.session.username], (logErr) => {
-        if (logErr) {
-          console.error('Error logging action:', logErr);
-        }
-      });
-      res.json({ success: true });
+      return res.status(500).json({ error: 'Error adding/editing user' });
     }
+    const action = userID ? 'Edited User' : 'Added User';
+    const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+    db.query(logSql, [action, req.session.username], (logErr) => {
+      if (logErr) {
+        console.error('Error logging action:', logErr);
+      }
+    });
+    res.json({ success: true });
   });
 });
+
 
 
 
@@ -491,28 +497,39 @@ app.get('/api/orders', (req, res) => {
       }
   });
 });
+//Get a single order
+app.get('/api/getOrder/:id', (req, res) => {
+  const query = 'SELECT * FROM `Order` WHERE orderID = ?';
+  db.query(query, [req.params.id], (err, results) => {
+      if (err) throw err;
+      console.log('Order fetched:', results[0]);
+      res.json(results[0]);
+  });
+});
 
-
-// Get a single order
+// Edit an order
 app.post('/api/addEditOrder', (req, res) => {
   const { orderID, customerID, userID, orderDate, totalAmount, status } = req.body;
-  const query = orderID ? 'UPDATE `Order` SET customerID = ?, userID = ?, orderDate = ?, totalAmount = ?, status = ? WHERE orderID = ?' : 'INSERT INTO `Order` (customerID, userID, orderDate, totalAmount, status) VALUES (?, ?, ?, ?, ?)';
-  const values = orderID ? [customerID, userID, orderDate, totalAmount, status, orderID] : [customerID, userID, orderDate, totalAmount, status];
-
+  const query = orderID ? 
+    'UPDATE `Order` SET customerID = ?, userID = ?, orderDate = ?, totalAmount = ?, status = ? WHERE orderID = ?' :
+    'INSERT INTO `Order` (customerID, userID, orderDate, totalAmount, status) VALUES (?, ?, ?, ?, ?)';
+  
+  const values = orderID ? [customerID, userID, orderDate, totalAmount, status, orderID] :
+                          [customerID, userID, orderDate, totalAmount, status];
+  
   db.query(query, values, (err, results) => {
     if (err) {
       console.error('Error adding/editing order:', err);
-      res.status(500).json({ error: 'Error adding/editing order' });
-    } else {
-      const action = orderID ? 'Edited Order' : 'Added Order';
-      const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
-      db.query(logSql, [action, req.session.username], (logErr) => {
-        if (logErr) {
-          console.error('Error logging action:', logErr);
-        }
-      });
-      res.json({ success: true });
+      return res.status(500).json({ error: 'Error adding/editing order' });
     }
+    const action = orderID ? 'Edited Order' : 'Added Order';
+    const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+    db.query(logSql, [action, req.session.username], (logErr) => {
+      if (logErr) {
+        console.error('Error logging action:', logErr);
+      }
+    });
+    res.json({ success: true });
   });
 });
 
@@ -528,7 +545,7 @@ app.post('/api/addOrder', (req, res) => {
   });
 });*/
 
-// Edit an order
+
 app.delete('/api/deleteOrder/:id', (req, res) => {
   const orderID = req.params.id;
 
