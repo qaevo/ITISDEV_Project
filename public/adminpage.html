@@ -18,6 +18,12 @@
       .table-container {
         margin-bottom: 2rem;
       }
+      .modal-backdrop {
+        z-index: 1040 !important;
+      }
+      .modal {
+        z-index: 1050 !important;
+      }
     </style>
   </head>
   <body>
@@ -33,7 +39,7 @@
             width="60"
             height="60"
           />
-          <span class="d-block text-white mt-2" id="username"></span>
+          <span class="d-block text-white mt-2" id="navUsername"></span>
         </div>
         <ul class="nav flex-column">
           <li class="nav-item">
@@ -42,12 +48,17 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="adminpage.html">
+            <a class="nav-link active" href="adminpage.html">
               <i class="fa fa-dashboard"></i> <span>Manage Users & Orders</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="addinventory.html">
+            <a class="nav-link" href="admin-logs.html">
+              <i class="fa fa-history"></i> <span>Admin Logs</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="addinventory.html">
               <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
             </a>
           </li>
@@ -206,7 +217,7 @@
                   <div class="form-group">
                     <label for="orderDate">Order Date</label>
                     <input
-                      type="datetime-local"
+                      type="date"
                       class="form-control"
                       id="orderDate"
                       required
@@ -239,6 +250,14 @@
 
     <!-- JavaScript for managing users and orders -->
     <script>
+      function formatDate(date) {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
       $(document).ready(function () {
         fetchUsers();
         fetchOrders();
@@ -256,11 +275,11 @@
       fetch("/api/getUsername")
         .then((response) => response.json())
         .then((data) => {
-          document.getElementById("username").textContent = data.username;
+          document.getElementById("navUsername").textContent = data.username;
         })
         .catch((error) => {
           console.error("Error fetching username:", error);
-          document.getElementById("username").textContent = "Guest"; // Fallback text
+          document.getElementById("navUsername").textContent = "Guest"; // Fallback text
         });
 
       document
@@ -287,19 +306,19 @@
           $("#userTableBody").empty();
           data.forEach((user) => {
             $("#userTableBody").append(`
-                        <tr>
-                            <td>${user.userID}</td>
-                            <td>${user.username}</td>
-                            <td>${user.firstName}</td>
-                            <td>${user.lastName}</td>
-                            <td>${user.role}</td>
-                            <td>${user.hireDate}</td>
-                            <td>
-                                <button class="btn btn-sm btn-warning" onclick="editUser(${user.userID})">Edit</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.userID})">Delete</button>
-                            </td>
-                        </tr>
-                    `);
+        <tr>
+          <td>${user.userID}</td>
+          <td>${user.username}</td>
+          <td>${user.firstName}</td>
+          <td>${user.lastName}</td>
+          <td>${user.role}</td>
+          <td>${user.hireDate}</td>
+          <td>
+            <button class="btn btn-sm btn-warning" onclick="editUser(${user.userID})">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.userID})">Delete</button>
+          </td>
+        </tr>
+      `);
           });
         });
       }
@@ -339,27 +358,43 @@
       }
 
       function editUser(userID) {
-        $.get(`/api/users/${userID}`, function (user) {
-          $("#userID").val(user.userID);
-          $("#username").val(user.username);
-          $("#password").val(user.password);
-          $("#firstName").val(user.firstName);
-          $("#lastName").val(user.lastName);
-          $("#role").val(user.role);
-          $("#hireDate").val(user.hireDate);
-          $("#userFormModal").modal("show");
+        $.get(`/api/getUser/${userID}`, function (user) {
+          console.log("Fetched user:", user); // Debugging output
+
+          if (user) {
+            $("#userID").val(user.userID);
+            $("#username").val(user.username);
+            $("#password").val(user.password);
+            $("#firstName").val(user.firstName);
+            $("#lastName").val(user.lastName);
+            $("#role").val(user.role);
+            $("#hireDate").val(formatDate(user.hireDate));
+            $("#userFormModal").modal("show");
+          } else {
+            alert("User data could not be fetched.");
+          }
+        }).fail(function () {
+          alert("Error fetching user data.");
         });
       }
 
       function editOrder(orderID) {
-        $.get(`/api/orders/${orderID}`, function (order) {
-          $("#orderID").val(order.orderID);
-          $("#customerID").val(order.customerID);
-          $("#orderUserID").val(order.userID);
-          $("#orderDate").val(order.orderDate);
-          $("#totalAmount").val(order.totalAmount);
-          $("#status").val(order.status);
-          $("#orderFormModal").modal("show");
+        $.get(`/api/getOrder/${orderID}`, function (order) {
+          console.log("Fetched Order:", order); // Debugging output
+          
+          if (order) {
+            $("#orderID").val(order.orderID);
+            $("#customerID").val(order.customerID);
+            $("#orderUserID").val(order.userID);
+            $("#orderDate").val(formatDate(order.orderDate));
+            $("#totalAmount").val(order.totalAmount);
+            $("#status").val(order.status);
+            $("#orderFormModal").modal("show");
+          } else {
+            alert("Order data could not be fetched.");
+          }
+        }).fail(function () {
+          alert("Error fetching order data.");
         });
       }
 

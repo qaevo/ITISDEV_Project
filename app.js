@@ -56,14 +56,14 @@ app.get("/api/products", (req, res) => {
 // Add Inventory
 app.post('/api/products', (req, res) => {
   const { productName, description, price, category, quantity, reorderLevel } = req.body;
-  const username = req.session.username; 
+  const username = req.session.username;
 
   if (!username) {
     return res.status(403).json({ error: 'User not logged in' });
   }
 
   const sql = 'INSERT INTO Product (productName, description, price, category, quantity, reorderLevel, createdDate, updatedDate) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())';
-  
+
   db.query(sql, [productName, description, price, category, quantity, reorderLevel], (err, result) => {
     if (err) {
       console.error('Error adding product:', err);
@@ -83,44 +83,41 @@ app.post('/api/products', (req, res) => {
 // Delete Inventory
 app.delete('/api/products/:id', (req, res) => {
   const productId = req.params.id;
-  const username = req.session.username; 
+  const username = req.session.username;
 
   if (!username) {
-      return res.status(403).json({ error: 'User not logged in' });
+    return res.status(403).json({ error: 'User not logged in' });
   }
 
- 
   const fetchProductSql = 'SELECT productName FROM Product WHERE productID = ?';
   db.query(fetchProductSql, [productId], (fetchErr, fetchResult) => {
-      if (fetchErr) {
-          console.error('Error fetching product details:', fetchErr);
-          return res.status(500).json({ error: 'Failed to fetch product details' });
+    if (fetchErr) {
+      console.error('Error fetching product details:', fetchErr);
+      return res.status(500).json({ error: 'Failed to fetch product details' });
+    }
+
+    if (fetchResult.length === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const productName = fetchResult[0].productName;
+
+    const deleteProductSql = 'DELETE FROM Product WHERE productID = ?';
+    db.query(deleteProductSql, [productId], (deleteErr) => {
+      if (deleteErr) {
+        console.error('Error deleting product:', deleteErr);
+        return res.status(500).json({ error: 'Failed to delete product' });
       }
 
-      if (fetchResult.length === 0) {
-          return res.status(404).json({ error: 'Product not found' });
-      }
-
-      const productName = fetchResult[0].productName;
-
-      
-      const deleteProductSql = 'DELETE FROM Product WHERE productID = ?';
-      db.query(deleteProductSql, [productId], (deleteErr) => {
-          if (deleteErr) {
-              console.error('Error deleting product:', deleteErr);
-              return res.status(500).json({ error: 'Failed to delete product' });
-          }
-
-          
-          const logSql = 'INSERT INTO admin_logs (action, user, productID, productName) VALUES (?, ?, ?, ?)';
-          db.query(logSql, ['Deleted Product', username, productId, productName], (logErr) => {
-              if (logErr) {
-                  console.error('Error logging action:', logErr);
-              }
-          });
-
-          return res.json({ message: 'Product deleted successfully' });
+      const logSql = 'INSERT INTO admin_logs (action, user, productID, productName) VALUES (?, ?, ?, ?)';
+      db.query(logSql, ['Deleted Product', username, productId, productName], (logErr) => {
+        if (logErr) {
+          console.error('Error logging action:', logErr);
+        }
       });
+
+      return res.json({ message: 'Product deleted successfully' });
+    });
   });
 });
 
@@ -144,84 +141,153 @@ app.post("/login", (req, res) => {
     if (results.length > 0) {
       const user = results[0];
 
-      // Log the stored hashed password and the provided password
-      // console.log("User found:", user);
-      // console.log("Stored hashed password:", user.password);
-      // console.log("Password to compare:", password);
-
-      // Debugging
-      bcrypt.compare(password, user.password, (err, isMatch) => {
-        console.log("Password match result:", isMatch);
-      });
-
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (err) {
           console.error("Bcrypt comparison error:", err.message);
-
           return res.status(500).json({ error: "Internal server error" });
         }
         if (isMatch) {
           req.session.userId = user.userID;
           req.session.username = user.username;
-          console.log("Password match successful.");
+
+          // Log login action
+          const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+          db.query(logSql, ['Login', user.username], (logErr) => {
+            if (logErr) {
+              console.error('Error logging action:', logErr);
+            }
+          });
 
           return res.json({ success: true });
         } else {
-          console.log("Password does not match");
-
           return res
             .status(401)
             .json({ error: "Incorrect username or password" });
         }
       });
     } else {
-      console.log("No user found with this username");
       return res.status(401).json({ error: "Incorrect username or password" });
     }
   });
 });
 
+
+
+
 // Logout route
 app.post("/logout", (req, res) => {
+  const username = req.session.username;
+
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).send("Could not log out.");
     } else {
+      // Log logout action
+      if (username) {
+        const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+        db.query(logSql, ['Logout', username], (logErr) => {
+          if (logErr) {
+            console.error('Error logging action:', logErr);
+          }
+        });
+      }
       res.status(200).send("Logged out");
     }
   });
 });
 
 
+
+
+
 //Edit inventory
 // API endpoint to get a product by ID
 app.get('/api/products/:id', (req, res) => {
-  const productID = parseInt(req.params.id, 10);
-  const product = products.find(p => p.productID === productID);
+  const productID = req.params.id; 
+  const sql = 'SELECT * FROM Product WHERE productID = ?'; 
 
-  if (product) {
-      res.json(product);
-  } else {
-      res.status(404).json({ message: 'Product not found' });
-  }
+  console.log(`Fetching product with ID: ${productID}`); 
+
+  db.query(sql, [productID], (err, results) => {
+    if (err) {
+      console.error('Error fetching product data:', err); 
+      return res.status(500).json({ error: 'Failed to fetch product data' });
+    }
+
+    if (results.length === 0) {
+      console.log('Product not found'); 
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(results[0]); 
+  });
 });
 
 // API endpoint to update a product by ID
 app.put('/api/products/:id', (req, res) => {
-  const productID = parseInt(req.params.id, 10);
-  const productIndex = products.findIndex(p => p.productID === productID);
+  const productID = req.params.id;
+  const { productName, description, price, category, quantity, reorderLevel } = req.body;
+  const username = req.session.username;
 
-  if (productIndex !== -1) {
-      const updatedProduct = {
-          productID: productID,
-          ...req.body
-      };
-      products[productIndex] = updatedProduct;
-      res.json(updatedProduct);
-  } else {
-      res.status(404).json({ message: 'Product not found' });
+  if (!username) {
+    return res.status(403).json({ error: 'User not logged in' });
   }
+
+  const fetchProductSql = 'SELECT * FROM Product WHERE productID = ?';
+  db.query(fetchProductSql, [productID], (fetchErr, fetchResults) => {
+    if (fetchErr) {
+      console.error('Error fetching product details:', fetchErr);
+      return res.status(500).json({ error: 'Failed to fetch product details' });
+    }
+
+    if (fetchResults.length === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const oldProduct = fetchResults[0];
+    const oldProductInfo = `Name: ${oldProduct.productName}, Description: ${oldProduct.description}, Price: ${oldProduct.price}, Category: ${oldProduct.category}, Quantity: ${oldProduct.quantity}, Reorder Level: ${oldProduct.reorderLevel}`;
+
+    const sql = 'UPDATE Product SET productName = ?, description = ?, price = ?, category = ?, quantity = ?, reorderLevel = ?, updatedDate = NOW() WHERE productID = ?';
+    db.query(sql, [productName, description, price, category, quantity, reorderLevel, productID], (err, result) => {
+      if (err) {
+        console.error('Error updating product:', err);
+        return res.status(500).json({ error: 'Failed to update product' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+
+      const newProduct = {
+        productName,
+        description,
+        price,
+        category,
+        quantity,
+        reorderLevel
+      };
+      const newProductInfo = `Name: ${productName}, Description: ${description}, Price: ${price}, Category: ${category}, Quantity: ${quantity}, Reorder Level: ${reorderLevel}`;
+
+      let logMessage = `Product --> Updated Product: ${oldProductInfo} --> ${newProductInfo}`;
+      if (logMessage.length > 255) {  // Assuming VARCHAR(255) is the column size
+        logMessage = logMessage.substring(0, 252) + '...';
+      }
+
+      const logSql = 'INSERT INTO admin_logs (action, user, productID, productName) VALUES (?, ?, ?, ?)';
+      db.query(logSql, [logMessage, username, productID, productName], (logErr) => {
+        if (logErr) {
+          console.error('Error logging action:', logErr);
+        }
+      });
+
+      res.json({ message: 'Product updated successfully' });
+    });
+  });
 });
+
+
+
+
 
 // Dashboard route (protected)
 app.get("/dashboard", (req, res) => {
@@ -348,9 +414,11 @@ app.get('/api/getUser/:id', (req, res) => {
   const query = 'SELECT * FROM User WHERE userID = ?';
   db.query(query, [req.params.id], (err, results) => {
       if (err) throw err;
+      console.log('User fetched:', results[0]); // Add this line
       res.json(results[0]);
   });
 });
+
 
 // Add a new user
 app.post('/api/addUser', (req, res) => {
@@ -365,18 +433,30 @@ app.post('/api/addUser', (req, res) => {
 // Edit a user
 app.post('/api/addEditUser', (req, res) => {
   const { userID, username, password, firstName, lastName, role, hireDate } = req.body;
-  const query = userID ? 'UPDATE User SET username = ?, password = ?, firstName = ?, lastName = ?, role = ?, hireDate = ? WHERE userID = ?' : 'INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES (?, ?, ?, ?, ?, ?)';
-  const values = userID ? [username, password, firstName, lastName, role, hireDate, userID] : [username, password, firstName, lastName, role, hireDate];
-
+  const query = userID ? 
+    'UPDATE User SET username = ?, password = ?, firstName = ?, lastName = ?, role = ?, hireDate = ? WHERE userID = ?' :
+    'INSERT INTO User (username, password, firstName, lastName, role, hireDate) VALUES (?, ?, ?, ?, ?, ?)';
+  
+  const values = userID ? [username, password, firstName, lastName, role, hireDate, userID] :
+                          [username, password, firstName, lastName, role, hireDate];
+  
   db.query(query, values, (err, results) => {
-      if (err) {
-          console.error('Error adding/editing user:', err);
-          res.status(500).json({ error: 'Error adding/editing user' });
-      } else {
-          res.json({ success: true });
+    if (err) {
+      console.error('Error adding/editing user:', err);
+      return res.status(500).json({ error: 'Error adding/editing user' });
+    }
+    const action = userID ? 'Edited User' : 'Added User';
+    const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+    db.query(logSql, [action, req.session.username], (logErr) => {
+      if (logErr) {
+        console.error('Error logging action:', logErr);
       }
+    });
+    res.json({ success: true });
   });
 });
+
+
 
 
 // Delete a user
@@ -384,21 +464,28 @@ app.delete('/api/deleteUser/:id', (req, res) => {
   const userID = req.params.id;
 
   db.query('DELETE FROM `Order` WHERE userID = ?', [userID], (err, results) => {
-      if (err) {
-          console.error('Error deleting orders:', err);
-          res.status(500).json({ error: 'Error deleting orders' });
-      } else {
-          db.query('DELETE FROM User WHERE userID = ?', [userID], (err, results) => {
-              if (err) {
-                  console.error('Error deleting user:', err);
-                  res.status(500).json({ error: 'Error deleting user' });
-              } else {
-                  res.json({ success: true });
-              }
+    if (err) {
+      console.error('Error deleting orders:', err);
+      res.status(500).json({ error: 'Error deleting orders' });
+    } else {
+      db.query('DELETE FROM User WHERE userID = ?', [userID], (err, results) => {
+        if (err) {
+          console.error('Error deleting user:', err);
+          res.status(500).json({ error: 'Error deleting user' });
+        } else {
+          const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+          db.query(logSql, ['Deleted User', req.session.username], (logErr) => {
+            if (logErr) {
+              console.error('Error logging action:', logErr);
+            }
           });
-      }
+          res.json({ success: true });
+        }
+      });
+    }
   });
 });
+
 // Get all orders
 app.get('/api/orders', (req, res) => {
   db.query('SELECT * FROM `Order`', (err, results) => {
@@ -410,23 +497,42 @@ app.get('/api/orders', (req, res) => {
       }
   });
 });
-
-
-// Get a single order
-app.post('/api/addEditOrder', (req, res) => {
-  const { orderID, customerID, userID, orderDate, totalAmount, status } = req.body;
-  const query = orderID ? 'UPDATE `Order` SET customerID = ?, userID = ?, orderDate = ?, totalAmount = ?, status = ? WHERE orderID = ?' : 'INSERT INTO `Order` (customerID, userID, orderDate, totalAmount, status) VALUES (?, ?, ?, ?, ?)';
-  const values = orderID ? [customerID, userID, orderDate, totalAmount, status, orderID] : [customerID, userID, orderDate, totalAmount, status];
-
-  db.query(query, values, (err, results) => {
-      if (err) {
-          console.error('Error adding/editing order:', err);
-          res.status(500).json({ error: 'Error adding/editing order' });
-      } else {
-          res.json({ success: true });
-      }
+//Get a single order
+app.get('/api/getOrder/:id', (req, res) => {
+  const query = 'SELECT * FROM `Order` WHERE orderID = ?';
+  db.query(query, [req.params.id], (err, results) => {
+      if (err) throw err;
+      console.log('Order fetched:', results[0]);
+      res.json(results[0]);
   });
 });
+
+// Edit an order
+app.post('/api/addEditOrder', (req, res) => {
+  const { orderID, customerID, userID, orderDate, totalAmount, status } = req.body;
+  const query = orderID ? 
+    'UPDATE `Order` SET customerID = ?, userID = ?, orderDate = ?, totalAmount = ?, status = ? WHERE orderID = ?' :
+    'INSERT INTO `Order` (customerID, userID, orderDate, totalAmount, status) VALUES (?, ?, ?, ?, ?)';
+  
+  const values = orderID ? [customerID, userID, orderDate, totalAmount, status, orderID] :
+                          [customerID, userID, orderDate, totalAmount, status];
+  
+  db.query(query, values, (err, results) => {
+    if (err) {
+      console.error('Error adding/editing order:', err);
+      return res.status(500).json({ error: 'Error adding/editing order' });
+    }
+    const action = orderID ? 'Edited Order' : 'Added Order';
+    const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+    db.query(logSql, [action, req.session.username], (logErr) => {
+      if (logErr) {
+        console.error('Error logging action:', logErr);
+      }
+    });
+    res.json({ success: true });
+  });
+});
+
 
 
 /* Add a new order
@@ -439,26 +545,33 @@ app.post('/api/addOrder', (req, res) => {
   });
 });*/
 
-// Edit an order
+
 app.delete('/api/deleteOrder/:id', (req, res) => {
   const orderID = req.params.id;
 
   db.query('DELETE FROM OrderItem WHERE orderID = ?', [orderID], (err, results) => {
-      if (err) {
-          console.error('Error deleting order items:', err);
-          res.status(500).json({ error: 'Error deleting order items' });
-      } else {
-          db.query('DELETE FROM `Order` WHERE orderID = ?', [orderID], (err, results) => {
-              if (err) {
-                  console.error('Error deleting order:', err);
-                  res.status(500).json({ error: 'Error deleting order' });
-              } else {
-                  res.json({ success: true });
-              }
+    if (err) {
+      console.error('Error deleting order items:', err);
+      res.status(500).json({ error: 'Error deleting order items' });
+    } else {
+      db.query('DELETE FROM `Order` WHERE orderID = ?', [orderID], (err, results) => {
+        if (err) {
+          console.error('Error deleting order:', err);
+          res.status(500).json({ error: 'Error deleting order' });
+        } else {
+          const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
+          db.query(logSql, ['Deleted Order', req.session.username], (logErr) => {
+            if (logErr) {
+              console.error('Error logging action:', logErr);
+            }
           });
-      }
+          res.json({ success: true });
+        }
+      });
+    }
   });
 });
+
 
 // Delete an order
 app.delete('/api/deleteUser/:id', (req, res) => {
@@ -504,13 +617,71 @@ app.get("/api/getUsername", (req, res) => {
 });
 
 app.get('/api/admin-logs', (req, res) => {
-  const sql = 'SELECT * FROM admin_logs ORDER BY timestamp DESC';
-  db.query(sql, (err, result) => {
-      if (err) {
-          console.error('Error fetching admin logs:', err);
-          res.status(500).json({ error: 'Failed to fetch admin logs' });
-      } else {
-          res.json(result);
-      }
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Unauthorized access' });
+  }
+
+  const sql = "SELECT role FROM User WHERE userID = ?";
+  db.query(sql, [req.session.userId], (err, results) => {
+    if (err) {
+      console.error("Database query error:", err.message);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    if (results.length > 0 && results[0].role === 'admin') {
+      const logSql = 'SELECT * FROM admin_logs ORDER BY timestamp DESC';
+      db.query(logSql, (logErr, result) => {
+        if (logErr) {
+          console.error('Error fetching admin logs:', logErr);
+          return res.status(500).json({ error: 'Failed to fetch admin logs' });
+        } else {
+          return res.json(result);
+        }
+      });
+    } else {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+  });
+});
+
+
+// Fetch user data
+app.get('/api/getUserData', (req, res) => {
+  const query = 'SELECT * FROM User';
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error fetching user data:', error);
+      res.status(500).send(error);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.get("/api/getUser/:userID", (req, res) => {
+  const userID = req.params.userID;
+  const query = "SELECT * FROM User WHERE userID = ?";
+  db.query(query, [userID], (err, result) => {
+    if (err) throw err;
+    res.json(result[0]);
+  });
+});
+
+app.put("/api/updateUser/:userID", (req, res) => {
+  const userID = req.params.userID;
+  const { username, firstName, lastName, role } = req.body;
+  const query = "UPDATE User SET username = ?, firstName = ?, lastName = ?, role = ? WHERE userID = ?";
+  db.query(query, [username, firstName, lastName, role, userID], (err) => {
+    if (err) throw err;
+    res.sendStatus(200);
+  });
+});
+
+app.delete("/api/deleteUser/:userID", (req, res) => {
+  const userID = req.params.userID;
+  const query = "DELETE FROM User WHERE userID = ?";
+  db.query(query, [userID], (err) => {
+    if (err) throw err;
+    res.sendStatus(200);
   });
 });

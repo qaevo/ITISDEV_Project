@@ -18,33 +18,38 @@
                 <span class="d-block text-white mt-2" id="username"></span>
             </div>
             <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link" href="#" id="dashboardLink">
-                  <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="addinventory.html">
-                  <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="editinventory.html">
-                  <i class="fa fa-edit"></i> <span>Edit Inventory</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="admin-logs.html">
-                    <i class="fa fa-history"></i> <span>Admin Logs</span>
-                </a>
-            </li>
-              <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="#" id="logoutBtn">
-                  <i class="fa fa-power-off"></i> <span>Logout</span>
-                </a>
-              </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="adminpage.html">
+                        <i class="fa fa-dashboard"></i> <span>Manage Users & Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="admin-logs.html">
+                        <i class="fa fa-history"></i> <span>Admin Logs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="addinventory.html?from=admindashboard">
+                        <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="editinventory.html?from=admindashboard">
+                        <i class="fa fa-edit"></i> <span>Edit Inventory</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-auto">
+                    <a class="nav-link text-danger" href="#" id="logoutBtn">
+                        <i class="fa fa-power-off"></i> <span>Logout</span>
+                    </a>
+                </li>
             </ul>
-          </div>
+        </div>
     </nav>
 
     <div class="defaultclass">
@@ -54,7 +59,7 @@
         <div class="dashboard_content">
             <div class="dashboard_content_main">
                 <div class="table-container">
-                    <h3>Admin Logs</h3>
+                    <h3>Added Products</h3>
                     <table class="table table-striped table-bordered table-hover">
                         <thead class="thead-dark">
                             <tr>
@@ -65,9 +70,91 @@
                                 <th>Timestamp</th>
                             </tr>
                         </thead>
-                        <tbody id="adminLogs">
-                            
-                        </tbody>
+                        <tbody id="addedProductsLogs"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3>Deleted Products</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deletedProductsLogs"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3>Updated Products</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="updatedProductsLogs"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3>Login Logs</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loginLogs"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3>Logout Logs</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logoutLogs"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3>Deleted Orders</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Order ID</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deletedOrdersLogs"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3>Updated Orders</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Order ID</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="updatedOrdersLogs"></tbody>
                     </table>
                 </div>
             </div>
@@ -79,56 +166,113 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Fetch the username from the server and update the username span
-            fetch("/api/getUsername")
-                .then((response) => response.json())
-                .then((data) => {
-                    document.getElementById("username").textContent = data.username;
-                })
-                .catch((error) => {
-                    console.error("Error fetching username:", error);
-                    document.getElementById("username").textContent = "Guest"; // Fallback text
-                });
+  fetch("/api/getUsername")
+      .then(response => response.json())
+      .then(data => {
+          document.getElementById("username").textContent = data.username;
+      })
+      .catch(error => {
+          console.error("Error fetching username:", error);
+          document.getElementById("username").textContent = "Guest"; // Fallback text
+      });
 
-            // Logout button functionality
-            document.getElementById("logoutBtn").addEventListener("click", (event) => {
-                event.preventDefault(); // Prevent default action
+  document.getElementById("logoutBtn").addEventListener("click", (event) => {
+      event.preventDefault(); // Prevent default action
 
-                fetch("/logout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }).then((response) => {
-                    if (response.ok) {
-                        window.location.href = "index.html"; // Redirect to index page after logout
-                    } else {
-                        alert("Logout failed");
-                    }
-                });
-            });
+      fetch("/logout", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+      }).then(response => {
+          if (response.ok) {
+              window.location.href = "index.html"; // Redirect to index page after logout
+          } else {
+              alert("Logout failed");
+          }
+      });
+  });
 
-        
-            fetch('/api/admin-logs')
-                .then(response => response.json())
-                .then(data => {
-                    const adminLogs = document.getElementById('adminLogs');
-                    data.forEach(log => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${log.action}</td>
-                            <td>${log.user}</td>
-                            <td>${log.productID}</td>
-                            <td>${log.productName}</td>
-                            <td>${log.timestamp}</td>
-                        `;
-                        adminLogs.appendChild(row);
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error fetching admin logs:', error);
-                });
-        });
+  fetch('/api/admin-logs')
+      .then(response => response.json())
+      .then(data => {
+          const addedProductsLogs = document.getElementById('addedProductsLogs');
+          const deletedProductsLogs = document.getElementById('deletedProductsLogs');
+          const updatedProductsLogs = document.getElementById('updatedProductsLogs');
+          const loginLogs = document.getElementById('loginLogs');
+          const logoutLogs = document.getElementById('logoutLogs');
+          const deletedOrdersLogs = document.getElementById('deletedOrdersLogs');
+          const updatedOrdersLogs = document.getElementById('updatedOrdersLogs');
+
+          data.forEach(log => {
+              const row = document.createElement('tr');
+              if (log.action.includes('Added Product')) {
+                  row.innerHTML = `
+                      <td>${log.action}</td>
+                      <td>${log.user}</td>
+                      <td>${log.productID}</td>
+                      <td>${log.productName}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  addedProductsLogs.appendChild(row);
+              } else if (log.action.includes('Deleted Product')) {
+                  row.innerHTML = `
+                      <td>${log.action}</td>
+                      <td>${log.user}</td>
+                      <td>${log.productID}</td>
+                      <td>${log.productName}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  deletedProductsLogs.appendChild(row);
+              } else if (log.action.includes('Product --> Updated Product')) {
+                  const actionDetails = log.action.split('Product --> Updated Product: ')[1];
+                  row.innerHTML = `
+                      <td>Updated Product</td>
+                      <td>${log.user}</td>
+                      <td>${log.productID}</td>
+                      <td>${actionDetails}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  updatedProductsLogs.appendChild(row);
+              } else if (log.action === 'Login') {
+                  row.innerHTML = `
+                      <td>${log.action}</td>
+                      <td>${log.user}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  loginLogs.appendChild(row);
+              } else if (log.action === 'Logout') {
+                  row.innerHTML = `
+                      <td>${log.action}</td>
+                      <td>${log.user}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  logoutLogs.appendChild(row);
+              } else if (log.action.includes('Deleted Order')) {
+                  row.innerHTML = `
+                      <td>${log.action}</td>
+                      <td>${log.user}</td>
+                      <td>${log.orderID}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  deletedOrdersLogs.appendChild(row);
+              } else if (log.action.includes('Updated Order')) {
+                  row.innerHTML = `
+                      <td>${log.action}</td>
+                      <td>${log.user}</td>
+                      <td>${log.orderID}</td>
+                      <td>${log.timestamp}</td>
+                  `;
+                  updatedOrdersLogs.appendChild(row);
+              }
+          });
+      })
+      .catch((error) => {
+          console.error('Error fetching admin logs:', error);
+      });
+});
+
+
     </script>
 </body>
 </html>

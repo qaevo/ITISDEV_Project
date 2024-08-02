@@ -15,47 +15,46 @@
     <div class="container mt-5">
       <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
         <div class="sidebar-sticky">
-          <h3 class="dashboard-logo text-center text-primary my-4">IMSYS</h3>
-          <div class="text-center mb-4">
-            <img
-              src="image/profile.png"
-              class="rounded-circle border border-primary"
-              alt="profile image"
-              id="dashboard_user_img"
-              width="60"
-              height="60"
-            />
-            <span class="d-block text-white mt-2" id="username"></span>
-          </div>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="#" id="dashboardLink">
-                <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="addinventory.html">
-                <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="editinventory.html">
-                <i class="fa fa-edit"></i> <span>Edit Inventory</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="admin-logs.html">
-                  <i class="fa fa-history"></i> <span>Admin Logs</span>
-              </a>
+            <h3 class="dashboard-logo text-center text-primary my-4">IMSYS</h3>
+            <div class="text-center mb-4">
+                <img src="image/profile.png" class="rounded-circle border border-primary" alt="profile image" id="dashboard_user_img" width="60" height="60"/>
+                <span class="d-block text-white mt-2" id="username"></span>
+            </div>
+            <ul class="nav flex-column">
+              <li class="nav-item">
+            <a class="nav-link" href="dashboard.html">
+              <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+            </a>
           </li>
-            <li class="nav-item mt-auto">
-              <a class="nav-link text-danger" href="#" id="logoutBtn">
-                <i class="fa fa-power-off"></i> <span>Logout</span>
-              </a>
+              <li class="nav-item">
+                <a class="nav-link" href="adminpage.html">
+                  <i class="fa fa-dashboard"></i> <span>Manage Users & Orders</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="admin-logs.html">
+                    <i class="fa fa-history"></i> <span>Admin Logs</span>
+                </a>
             </li>
-          </ul>
-        </div>
-      </nav>
+              <li class="nav-item">
+                <a class="nav-link" href="addinventory.html?from=admindashboard">
+                  <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="editinventory.html?from=admindashboard">
+                  <i class="fa fa-edit"></i> <span>Edit Inventory</span>
+                </a>
+              </li>
+              
+              <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="#" id="logoutBtn">
+                  <i class="fa fa-power-off"></i> <span>Logout</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+    </nav>
       <div class="defaultclass">
         <h1 class="mb-4">Warehouse Management System</h1>
 
@@ -73,7 +72,7 @@
         </div>
 
         <!-- Edit Product Form -->
-        <div id="editProductForm" class="card mb-4" style="display: none">
+        <div id="editProductForm" class="card mb-4">
           <div class="card-header">Edit Product</div>
           <div class="card-body">
             <form id="productForm">
@@ -199,78 +198,89 @@
       });
 
       $(document).ready(function () {
-        fetchProducts();
+    fetchProducts();
 
-        // Fetch and populate products in the select box
-        function fetchProducts() {
-          $.ajax({
+    // Fetch and populate products in the select box
+    function fetchProducts() {
+        $.ajax({
             url: "/api/products",
             type: "GET",
             success: function (products) {
-              let options = '<option value="">Select a product</option>';
-              products.forEach((product) => {
-                options += `<option value="${product.productID}">${product.productName}</option>`;
-              });
-              $("#selectProduct").html(options);
+                let options = '<option value="">Select a product</option>';
+                products.forEach((product) => {
+                    options += `<option value="${product.productID}">${product.productName}</option>`;
+                });
+                $("#selectProduct").html(options);
             },
-          });
-        }
+            error: function (xhr, status, error) {
+                console.error("Error fetching products:", error);
+            }
+        });
+    }
 
-        // Handle product selection
-        $("#selectProduct").on("change", function () {
-          const id = $(this).val();
-          if (id) {
+    // Handle product selection
+    $("#selectProduct").on("change", function () {
+        const productId = $(this).val();
+        if (productId) {
             $.ajax({
-              url: `/api/products/${id}`,
-              type: "GET",
-              success: function (product) {
-                $("#productId").val(product.productID);
-                $("#productName").val(product.productName);
-                $("#description").val(product.description);
-                $("#price").val(product.price);
-                $("#category").val(product.category);
-                $("#quantity").val(product.quantity);
-                $("#reorderLevel").val(product.reorderLevel);
-                $("#editProductForm").show();
-              },
+                url: `/api/products/${productId}`,
+                type: "GET",
+                success: function (product) {
+                    // Populate form fields with product data
+                    $("#productId").val(product.productID);
+                    $("#productName").val(product.productName);
+                    $("#description").val(product.description);
+                    $("#price").val(product.price);
+                    $("#category").val(product.category);
+                    $("#quantity").val(product.quantity);
+                    $("#reorderLevel").val(product.reorderLevel);
+                    $("#editProductForm").show();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching product data:", error);
+                }
             });
-          } else {
-            $("#editProductForm").hide();
+        } else {
+            // Reset form if no product is selected
             $("#productForm")[0].reset();
             $("#productId").val("");
-          }
-        });
+            $("#editProductForm").hide();
+        }
+    });
 
-        // Handle form submission for updating a product
-        $("#productForm").on("submit", function (e) {
-          e.preventDefault();
-          const productData = {
+    // Handle form submission for updating a product
+    $("#productForm").on("submit", function (e) {
+        e.preventDefault();
+        const productData = {
             productName: $("#productName").val(),
             description: $("#description").val(),
             price: $("#price").val(),
             category: $("#category").val(),
             quantity: $("#quantity").val(),
             reorderLevel: $("#reorderLevel").val(),
-          };
+        };
 
-          const productId = $("#productId").val();
-          if (productId) {
+        const productId = $("#productId").val();
+        if (productId) {
             // Update product
             $.ajax({
-              url: `/api/products/${productId}`,
-              type: "PUT",
-              contentType: "application/json",
-              data: JSON.stringify(productData),
-              success: function (response) {
-                $("#productForm")[0].reset();
-                $("#productId").val("");
-                $("#editProductForm").hide();
-                fetchProducts();
-                $("#selectProduct").val("");
-              },
+                url: `/api/products/${productId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(productData),
+                success: function (response) {
+                    $("#productForm")[0].reset();
+                    $("#productId").val("");
+                    $("#editProductForm").hide();
+                    fetchProducts();
+                    $("#selectProduct").val("");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error updating product:", error);
+                }
             });
-          }
-        });
+        }
+    });
       });
     </script>
   </body>
