@@ -88,6 +88,18 @@ $(document).ready(function() {
         displayResults(filteredProducts);
     });
 
+    $('#reset-button').on('click', function() {
+        $('#search-bar').val('');
+        $('#category-filter').val('');
+        $('#min-price').val('');
+        $('#max-price').val('');
+        $('#min-quantity').val('');
+        $('#max-quantity').val('');
+        $('#min-reorder-level').val('');
+        $('#max-reorder-level').val('');
+        displayResults(window.allProducts);
+    });
+
     $('#toggle-advanced-filters').on('click', function() {
         $('#advanced-filters').toggleClass('hidden');
     });
@@ -140,4 +152,34 @@ $(document).ready(function() {
 
         displayResults(sortedProducts);
     });
+    function fetchAdminLogs() {
+        $.ajax({
+            url: '/api/admin-logs',
+            type: 'GET',
+            success: function(logs) {
+                let logRows = '';
+                logs.forEach(log => {
+                    logRows += `
+                        <tr>
+                            <td>${log.action}</td>
+                            <td>${log.user}</td>
+                            <td>${log.productID}</td>
+                            <td>${log.productName}</td>
+                            <td>${log.timestamp}</td>
+                        </tr>
+                    `;
+                });
+                $('#adminLogs').html(logRows);
+            },
+            error: function(error) {
+                console.error('Error fetching admin logs:', error);
+            }
+        });
+    }
+
+
+    if (window.location.pathname.endsWith('admin-logs.html')) {
+        fetchAdminLogs();
+    }
+    
 });
