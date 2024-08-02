@@ -22,37 +22,37 @@
             </div>
             <ul class="nav flex-column">
               <li class="nav-item">
-            <a class="nav-link" href="dashboard.html">
-              <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-            </a>
-          </li>
-              <li class="nav-item">
+                <a class="nav-link" href="dashboard.html">
+                  <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                </a>
+              </li>
+              <li class="nav-item admin-only">
                 <a class="nav-link" href="adminpage.html">
                   <i class="fa fa-dashboard"></i> <span>Manage Users & Orders</span>
                 </a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item admin-only">
                 <a class="nav-link" href="admin-logs.html">
-                    <i class="fa fa-history"></i> <span>Admin Logs</span>
+                  <i class="fa fa-history"></i> <span>Admin Logs</span>
                 </a>
-            </li>
+              </li>
               <li class="nav-item">
-                <a class="nav-link" href="addinventory.html?from=admindashboard">
+                <a class="nav-link" href="addinventory.html">
                   <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="editinventory.html?from=admindashboard">
+                <a class="nav-link" href="editinventory.html">
                   <i class="fa fa-edit"></i> <span>Edit Inventory</span>
                 </a>
               </li>
-              
               <li class="nav-item mt-auto">
                 <a class="nav-link text-danger" href="#" id="logoutBtn">
                   <i class="fa fa-power-off"></i> <span>Logout</span>
                 </a>
               </li>
             </ul>
+            
           </div>
     </nav>
       <div class="defaultclass">
@@ -139,6 +139,7 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/roleControl.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Fetch the username from the server and update the username span

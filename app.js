@@ -44,6 +44,41 @@ app.use(
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
 
+// Middleware to check if user is admin
+function isAdmin(req, res, next) {
+  if (req.session.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  next();
+}
+
+// Protect admin routes
+app.get("/admindashboard.html", isAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public/admindashboard.html"));
+});
+
+app.get("/adminpage.html", isAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public/adminpage.html"));
+});
+
+app.get("/admin-logs.html", isAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public/admin-logs.html"));
+});
+
+// Protect API routes
+app.get('/api/admin-logs', isAdmin, (req, res) => {
+  const logSql = 'SELECT * FROM admin_logs ORDER BY timestamp DESC';
+  db.query(logSql, (logErr, result) => {
+    if (logErr) {
+      console.error('Error fetching admin logs:', logErr);
+      return res.status(500).json({ error: 'Failed to fetch admin logs' });
+    } else {
+      return res.json(result);
+    }
+  });
+});
+
+
 // Routes
 app.get("/api/products", (req, res) => {
   const sql = "SELECT * FROM Product";
@@ -149,6 +184,7 @@ app.post("/login", (req, res) => {
         if (isMatch) {
           req.session.userId = user.userID;
           req.session.username = user.username;
+          req.session.role = user.role; // Store user role in session
 
           // Log login action
           const logSql = 'INSERT INTO admin_logs (action, user) VALUES (?, ?)';
@@ -158,7 +194,8 @@ app.post("/login", (req, res) => {
             }
           });
 
-          return res.json({ success: true });
+          const redirectUrl = user.role === 'admin' ? '/admindashboard.html' : '/dashboard.html';
+          return res.json({ success: true, redirectUrl });
         } else {
           return res
             .status(401)
@@ -170,6 +207,7 @@ app.post("/login", (req, res) => {
     }
   });
 });
+
 
 
 
@@ -597,16 +635,16 @@ app.delete('/api/deleteUser/:id', (req, res) => {
 });
 
 
-// Endpoint to get the username
+// Endpoint to get the username and role
 app.get("/api/getUsername", (req, res) => {
   if (req.session && req.session.userId) {
-    const sql = "SELECT username FROM User WHERE userID = ?";
+    const sql = "SELECT username, role FROM User WHERE userID = ?";
     db.query(sql, [req.session.userId], (err, results) => {
       if (err) {
         return res.status(500).send("Error fetching username");
       }
       if (results.length > 0) {
-        res.json({ username: results[0].username });
+        res.json({ username: results[0].username, role: results[0].role });
       } else {
         res.status(404).send("User not found");
       }
@@ -615,6 +653,7 @@ app.get("/api/getUsername", (req, res) => {
     res.status(401).send("Unauthorized");
   }
 });
+
 
 app.get('/api/admin-logs', (req, res) => {
   if (!req.session.userId) {
