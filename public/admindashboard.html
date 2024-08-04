@@ -37,7 +37,7 @@
         </div>
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="dashboard.html">
+            <a class="nav-link" href="admindashboard.html">
               <i class="fa fa-dashboard"></i> <span>Dashboard</span>
             </a>
           </li>
@@ -52,12 +52,12 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="addinventory.html">
+            <a class="nav-link" href="addinventory.html?from=admindashboard">
               <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="editinventory.html">
+            <a class="nav-link" href="editinventory.html?from=admindashboard">
               <i class="fa fa-edit"></i> <span>Edit Inventory</span>
             </a>
           </li>
@@ -91,9 +91,6 @@
                   <th class="sortable" data-sort="quantity">Quantity</th>
                   <th class="sortable" data-sort="reorderLevel">
                     Reorder Level
-                  </th>
-                  <th class="sortable" data-sort="quantityOnOrder">
-                    Quantity On Order
                   </th>
                   <th class="sortable" data-sort="updatedDate">Updated Date</th>
                 </tr>
@@ -174,9 +171,6 @@
                   <th class="sortable" data-sort="orderDate">Order Date</th>
                   <th class="sortable" data-sort="status">Status</th>
                   <th class="sortable" data-sort="totalAmount">Total Amount</th>
-                  <th class="sortable" data-sort="itemsOrdered">
-                    Items Ordered
-                  </th>
                 </tr>
               </thead>
               <tbody id="purchaseOrders">
@@ -197,7 +191,6 @@
                   <th class="sortable" data-sort="orderDate">Order Date</th>
                   <th class="sortable" data-sort="status">Status</th>
                   <th class="sortable" data-sort="totalAmount">Total Amount</th>
-                  <th class="sortable" data-sort="itemsSold">Items Sold</th>
                 </tr>
               </thead>
               <tbody id="salesOrders">
@@ -262,7 +255,6 @@
                             <td>${item.price}</td>
                             <td>${item.quantity}</td>
                             <td>${item.reorderLevel}</td>
-                            <td>${item.quantityOnOrder}</td>
                             <td>${item.updatedDate}</td>
                         `;
               inventorySummary.appendChild(row);
@@ -328,7 +320,6 @@
                             <td>${item.orderDate}</td>
                             <td>${item.status}</td>
                             <td>${item.totalAmount}</td>
-                            <td>${item.itemsOrdered}</td>
                         `;
               purchaseOrders.appendChild(row);
             });
@@ -349,7 +340,6 @@
                             <td>${item.orderDate}</td>
                             <td>${item.status}</td>
                             <td>${item.totalAmount}</td>
-                            <td>${item.itemsSold}</td>
                         `;
               salesOrders.appendChild(row);
             });

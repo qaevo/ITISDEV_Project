@@ -27,46 +27,43 @@
   <body>
     <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
       <div class="sidebar-sticky">
-          <h3 class="dashboard-logo text-center text-primary my-4">IMSYS</h3>
-          <div class="text-center mb-4">
-              <img src="image/profile.png" class="rounded-circle border border-primary" alt="profile image" id="dashboard_user_img" width="60" height="60"/>
-              <span class="d-block text-white mt-2" id="username"></span>
-          </div>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="dashboard.html">
-                <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-              </a>
-            </li>
-            <li class="nav-item admin-only">
-              <a class="nav-link" href="adminpage.html">
-                <i class="fa fa-dashboard"></i> <span>Manage Users & Orders</span>
-              </a>
-            </li>
-            <li class="nav-item admin-only">
-              <a class="nav-link" href="admin-logs.html">
-                <i class="fa fa-history"></i> <span>Admin Logs</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="addinventory.html">
-                <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="editinventory.html">
-                <i class="fa fa-edit"></i> <span>Edit Inventory</span>
-              </a>
-            </li>
-            <li class="nav-item mt-auto">
-              <a class="nav-link text-danger" href="#" id="logoutBtn">
-                <i class="fa fa-power-off"></i> <span>Logout</span>
-              </a>
-            </li>
-          </ul>
-          
+        <h3 class="dashboard-logo text-center text-primary my-4">IMSYS</h3>
+        <div class="text-center mb-4">
+          <img
+            src="image/profile.png"
+            class="rounded-circle border border-primary"
+            alt="profile image"
+            id="dashboard_user_img"
+            width="60"
+            height="60"
+          />
+          <span class="d-block text-white mt-2" id="username"></span>
         </div>
-  </nav>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html">
+              <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="addinventory.html?from=dashboard">
+              <i class="fa fa-dashboard"></i> <span>Add Inventory</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="editinventory.html?from=dashboard">
+              <i class="fa fa-edit"></i> <span>Edit Inventory</span>
+            </a>
+          </li>
+          <li class="nav-item mt-auto">
+            <a class="nav-link text-danger" href="#" id="logoutBtn">
+              <i class="fa fa-power-off"></i> <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
     <div class="defaultclass">
       <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
@@ -84,11 +81,6 @@
             <h3>Inventory Transactions</h3>
             <canvas id="inventoryTransactionsChart"></canvas>
           </div>
-
-          <!--<div class="chart-container">
-            <h3>Supplier Information</h3>
-            <canvas id="supplierInfoChart"></canvas>
-          </div>-->
 
           <div class="chart-container">
             <h3>Purchase Orders</h3>
@@ -202,33 +194,6 @@
             });
           });
 
-        /* Fetch and display supplier information
-        fetch("/api/getSupplierInfo")
-          .then((response) => response.json())
-          .then((data) => {
-            const ctx = document.getElementById("supplierInfoChart").getContext("2d");
-            const supplierInfoChart = new Chart(ctx, {
-              type: "bar",
-              data: {
-                labels: data.map(item => item.supplierName),
-                datasets: [{
-                  label: "Number of Products",
-                  data: data.map(item => item.numberOfProducts),
-                  backgroundColor: "rgba(255, 159, 64, 0.2)",
-                  borderColor: "rgba(255, 159, 64, 1)",
-                  borderWidth: 1
-                }]
-              },
-              options: {
-                scales: {
-                  y: {
-                    beginAtZero: true
-                  }
-                }
-              }
-            });
-          });*/
-
         // Fetch and display purchase orders
         fetch("/api/getPurchaseOrders")
           .then((response) => response.json())
@@ -271,28 +236,25 @@
               .getElementById("salesOrdersChart")
               .getContext("2d");
             const salesOrdersChart = new Chart(ctx, {
-              type: "doughnut",
+              type: "bar",
               data: {
-                labels: data.map((item) => item.customerName),
+                labels: data.map((item) => item.orderID),
                 datasets: [
                   {
                     label: "Total Amount",
                     data: data.map((item) => item.totalAmount),
-                    backgroundColor: data.map(
-                      (_, index) =>
-                        `rgba(${(index * 30) % 255}, ${(index * 60) % 255}, ${
-                          (index * 90) % 255
-                        }, 0.2)`
-                    ),
-                    borderColor: data.map(
-                      (_, index) =>
-                        `rgba(${(index * 30) % 255}, ${(index * 60) % 255}, ${
-                          (index * 90) % 255
-                        }, 1)`
-                    ),
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    borderColor: "rgba(255, 99, 132, 1)",
                     borderWidth: 1,
                   },
                 ],
+              },
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
               },
             });
           });
