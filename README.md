@@ -1,5 +1,5 @@
-# ITISDEV_Project
-Business Applications Development Project
+# Business Applications Development Project
+ITISDEV Machine Project
 
 Dependencies Used
 npm i
